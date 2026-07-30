@@ -1,0 +1,2672 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <title>{{PAGE_TITLE}}</title>
+  <meta name="template-version" content="1.0.0">
+
+  <script>
+    // Immediate Theme Application to prevent flash
+    (function() {
+      try {
+        var key = '{{GLOBAL_PREFIX}}theme';
+        var theme = localStorage.getItem(key);
+        if (!theme) {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
+
+  <style>
+    :root {
+      /* Layout */
+      --topbar-h: 40px; 
+      
+      /* Colors: Light */
+      --bg-body: #ffffff;
+      --fg-body: #000000;
+      
+      --bg-topbar: #f2f2f2;
+      --bg-header: #e6e6e6;
+      --fg-header: #000000;
+      
+      --bg-row-even: #f1f1f1;
+      --bg-row-odd: #ffffff;
+      --bg-row-hover: #d2d2d2;
+      
+      /* Row selection (Light) */
+      --bg-row-selected: rgba(80, 60, 0, 0.30);
+      
+      --bg-summary: #f2f2f2;
+      --fg-summary-title: #222222;
+      --fg-summary-val: #bb0000;
+
+      --fg-link: #0066cc;
+      
+      /* Buttons */
+      --bg-btn: #afafaf;
+      --fg-btn: #000000;
+      --fg-btn-secondary: #555555;
+      --fg-btn-active: #333333;
+      
+      /* Meta */
+      --fg-meta: #2f2f2f;
+      --fg-size-folder: #aa3000;
+      --fg-size-file: #008e7d;
+
+      /* Loader (Flashing Background) */
+      --loader-bg-a: #dddddd;
+      --loader-bg-b: #cca027;
+      
+      /* Menu / Highlights */
+      --bg-menu: #ffffff;
+      --border-menu: #cccccc;
+      --fg-menu-active: #0066cc;
+      --bg-menu-hover: #eeeeee;
+      --bg-menu-btn: #f0f0f0;
+      
+      /* Search UI */
+      --bg-search: #ffffff;
+      --border-search: #cccccc;
+      
+      /* Search Highlights (Light) */
+      --bg-hit: #fff176;
+      --fg-hit: #000000;
+      --bg-hit-active: #ff9800;
+      --fg-hit-active: #000000;
+      
+      /* Toast */
+      --bg-toast: #333333;
+      --fg-toast: #ffffff;
+    }
+
+    .dark {
+      /* Colors: Dark */
+      --bg-body: #121212;
+      --fg-body: #e6e6e6;
+      
+      --bg-topbar: #1f1f1f;
+      --bg-header: #2f2f2f;
+      --fg-header: #e6e6e6;
+      
+      --bg-row-even: #232326;
+      --bg-row-odd: #18181a;
+      --bg-row-hover: #2b3138;
+
+      /* Row selection (Dark) */
+      --bg-row-selected: rgba(178, 140, 36, 0.4);
+      
+      --bg-summary: #1f1f1f;
+      --fg-summary-title: #bbbbbb;
+      --fg-summary-val: #e3bd71;
+
+      --fg-link: #74b6ff;
+      
+      --bg-btn: #474747;
+      --fg-btn: #e6e6e6;
+      --fg-btn-secondary: #999999;
+      --fg-btn-active: #cccccc;
+      
+      --fg-meta: #d3d3d3;
+      --fg-size-folder: #d29b0f;
+      --fg-size-file: #00b8a5;
+
+      --loader-bg-a: #2a2a2a;
+      --loader-bg-b: #6d5000;
+      
+      --bg-menu: #2f2f2f;
+      --border-menu: #444444;
+      --fg-menu-active: #74b6ff;
+      --bg-menu-hover: #3a3a3a;
+      --bg-menu-btn: #383838;
+      
+      --bg-search: #333333;
+      --border-search: #555555;
+      
+      /* Search Highlights (Dark) */
+      --bg-hit: #6e6200;
+      --fg-hit: #ffffff;
+      --bg-hit-active: #b36b00;
+      --fg-hit-active: #ffffff;
+      
+      --bg-toast: #eeeeee;
+      --fg-toast: #000000;
+    }
+
+    /* Text selection */
+    .dark ::selection {
+      background: #ffd863cf;
+      color: #000000;
+    }
+    .dark ::-moz-selection {
+      background: #ffd863cf;
+      color: #000000;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding-top: var(--topbar-h);
+      background: var(--bg-body);
+      color: var(--fg-body);
+      overflow: hidden; 
+    }
+
+    /* Scroll Container */
+    #scrollArea {
+      position: absolute;
+      top: var(--topbar-h);
+      bottom: 0;
+      left: 0;
+      right: 0;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+    
+    /* Clusterize styles */
+    .clusterize-content {
+      overflow: visible;
+      will-change: transform;
+    }
+    .clusterize-extra-row {
+      height: 0;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+    .clusterize-extra-row td {
+      height: 0;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    a {
+      color: var(--fg-link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* --- TOPBAR --- */
+    .topbar {
+      background: var(--bg-topbar);
+      color: var(--fg-body);
+      padding: 0 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 10px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--topbar-h);
+      box-sizing: border-box;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .topbar>div {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 10px;
+      position: relative;
+    }
+
+    .topbar h2 {
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      font-size: 0.9rem;
+      text-align: left;
+      /* Implement 2-line ellipsis: */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;  
+      overflow: hidden;
+      white-space: normal;
+    }
+
+    .topbar-btn {
+      background: transparent;
+      border: none;
+      color: var(--fg-body);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    .topbar-btn:hover {
+      background-color: rgba(128, 128, 128, 0.15);
+    }
+
+    /* --- SEARCH WIDGET --- */
+    .search-widget {
+      display: flex;
+      align-items: center;
+      border-radius: 6px;
+      transition: background-color 0.2s, border-color 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .search-widget.active {
+      background-color: var(--bg-search);
+      border-color: var(--border-search);
+      padding-left: 6px;
+    }
+
+    .search-controls {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin-right: 4px;
+    }
+
+    .search-controls.hidden {
+      display: none;
+    }
+
+    .search-input {
+      background: transparent;
+      border: none;
+      color: var(--fg-body);
+      outline: none;
+      font-size: 14px;
+      width: 170px !important;
+      border-bottom: 1px solid var(--border-search);
+      padding: 2px 0;
+    }
+
+    .search-counter {
+      font-size: 12px;
+      color: var(--fg-meta);
+      font-variant-numeric: tabular-nums;
+      min-width: 30px;
+      text-align: center;
+      margin-right: 6px;
+    }
+
+    .search-nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--fg-body);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 6px;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-nav-btn:hover {
+      opacity: 1;
+      background-color: rgba(128, 128, 128, 0.1);
+      border-radius: 3px;
+    }
+
+    /* --- SEARCH SETTINGS --- */
+    .search-settings-btn {
+      background: transparent;
+      border: none;
+      color: var(--fg-body);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 6px;
+      margin-right: 2px;
+      border-radius: 4px;
+      display: none; 
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    
+    .search-widget.active .search-settings-btn {
+      display: block;
+    }
+
+    .search-settings-btn:hover, .search-settings-btn.active {
+      opacity: 1;
+      background-color: rgba(128, 128, 128, 0.15);
+    }
+
+    .search-settings-menu {
+      right: 40px; 
+      min-width: 300px;
+    }
+
+    .check-label {
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* --- SETTINGS MENU --- */
+    .settings-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: var(--bg-menu);
+      border: 1px solid var(--border-menu);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 8px 0 0 0;
+      min-width: 300px;
+      display: none;
+      z-index: 1001;
+      font-size: 14px;
+    }
+
+    .settings-menu.open {
+      display: block;
+    }
+
+    .menu-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      border-bottom: 1px solid rgba(128,128,128,0.1);
+    }
+
+    .menu-label {
+      font-weight: 500;
+      color: var(--fg-body);
+    }
+
+    .menu-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--fg-btn-secondary);
+      font-family: 'Courier New', monospace;
+    }
+
+    .menu-option {
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.2s, background-color 0.2s;
+      font-size: 18px;
+      user-select: none;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .menu-option:hover {
+      background-color: var(--bg-menu-hover);
+    }
+
+    .menu-option.state-active {
+      color: var(--fg-menu-active);
+      background-color: rgba(128,128,128,0.1);
+    }
+
+    .sep {
+      opacity: 0.5;
+      font-size: 12px;
+    }
+
+    .menu-footer {
+      padding: 8px 16px;
+      border-top: 1px solid rgba(128,128,128,0.1);
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .menu-close-btn {
+      width: 100%;
+      padding: 6px 0;
+      background-color: var(--bg-menu-btn);
+      border: 1px solid var(--border-menu);
+      border-radius: 4px;
+      color: var(--fg-body);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color 0.2s;
+    }
+
+    .menu-close-btn:hover {
+      opacity: 0.8;
+    }
+
+    /* --- TOGGLE SLIDERS --- */
+    .slider-toggle-btn {
+      background-color: var(--bg-menu-btn);
+      border: 1px solid var(--border-menu);
+      cursor: pointer;
+      padding: 0;
+      border-radius: 4px;
+      width: 60px;
+      height: 28px;
+      position: relative;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      display: block;
+    }
+
+    .slider-toggle-track {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 0 4px;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 2;
+    }
+
+    .slider-icon {
+      font-size: 14px;
+      line-height: 1;
+      transition: opacity 0.3s, filter 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 24px;
+      margin: 0;
+      user-select: none;
+    }
+
+    .slider-toggle-btn .left-icon { opacity: 1; }
+    .slider-toggle-btn .right-icon { opacity: 0.3; filter: grayscale(100%); }
+
+    .slider-toggle-btn.toggled .left-icon { opacity: 0.3; filter: grayscale(100%); }
+    .slider-toggle-btn.toggled .right-icon { opacity: 1; filter: grayscale(0%); }
+
+    .slider-toggle-thumb {
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 26px;
+      height: 24px;
+      background-color: var(--bg-menu);
+      border: 1px solid var(--border-menu);
+      border-radius: 3px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      box-sizing: border-box;
+      z-index: 1;
+    }
+
+    .slider-toggle-btn.toggled .slider-toggle-thumb {
+      transform: translateX(30px);
+    }
+
+    /* --- TOAST --- */
+    .toast-container {
+      position: fixed;
+      top: 20px !important;
+      left: 50%;
+      transform: translate(-50%, -50%) !important;
+      background-color: #e0c060;
+      color: #222222; 
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      z-index: 3000 !important;
+      font-size: 14px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s, top 0.3s ease;
+      text-align: center;
+      max-width: 90%;
+      pointer-events: none;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    
+    .toast-container.show {
+      opacity: 1;
+      visibility: visible;
+      top: 20px !important;
+    }
+
+    /* --- HIGHLIGHTING (Animated Focus, No Bold) --- */
+    mark.search-hit {
+      background-color: var(--bg-hit);
+      color: var(--fg-hit);
+      padding: 0;
+      border-radius: 2px;
+      font-weight: normal;
+    }
+
+    @keyframes hitPop {
+      0% { transform: scale(1); outline: 3px solid transparent; }
+      50% { transform: scale(1.15); outline: 2px solid var(--fg-hit-active); }
+      100% { transform: scale(1.05); outline: 1px solid transparent; }
+    }
+
+    mark.search-hit-active {
+      background-color: var(--bg-hit-active);
+      color: var(--fg-hit-active);
+      font-weight: normal;
+      display: inline-block;
+      border-radius: 3px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      animation: hitPop 0.25s ease-out forwards;
+      padding: 0 1px;
+    }
+    
+    /* Active Search Column Header Style */
+    th.search-target {
+      box-shadow: inset 0 -3px 0 var(--fg-link) !important;
+      background-color: var(--bg-row-hover);
+    }
+
+    /* Empty Folder Cursor Override */
+    .icon-folder.icon-empty {
+      cursor: default !important;
+    }
+
+    /* --- Search Help Box Styles --- */
+    .help-trigger-row {
+      padding: 4px 16px 8px 16px;
+      text-align: center;
+    }
+    .btn-help-toggle {
+      background: transparent;
+      border: 1px solid var(--border-menu);
+      color: var(--fg-link);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 3px 8px;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn-help-toggle:hover {
+      background: var(--bg-menu-hover);
+    }
+    .search-help-content {
+      display: none;
+      background: var(--bg-menu-btn);
+      padding: 10px 16px;
+      font-size: 11px;
+      color: var(--fg-body);
+      border-top: 1px solid var(--border-menu);
+      border-bottom: 1px solid var(--border-menu);
+      line-height: 1.4;
+    }
+    .search-help-content.show {
+      display: block;
+    }
+    .search-help-content h4 {
+      margin: 0 0 4px 0;
+      font-size: 11px;
+      color: var(--fg-menu-active);
+      text-transform: uppercase;
+    }
+    .search-help-content ul {
+      padding-left: 14px;
+      margin: 4px 0 8px 0;
+    }
+    .search-help-content code {
+      background: rgba(128,128,128,0.15);
+      padding: 0 3px;
+      border-radius: 2px;
+      font-family: monospace;
+      color: var(--fg-size-file);
+    }
+    .search-help-content .note {
+      font-style: italic;
+      opacity: 0.8;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* Table & Columns */
+    table {
+      width: 100%;
+      table-layout: fixed !important;
+      border-collapse: collapse;
+      border-spacing: 0;
+      box-sizing: border-box;
+      margin-right: 0;
+      min-width: {{TOTAL_MIN_PX}}px !important;
+    }
+    
+    .full-width table {
+      min-width: 100% !important;
+      table-layout: auto !important;
+    }
+
+    thead th {
+      height: 28px;
+      padding: 0 12px;
+      text-align: left;
+      white-space: nowrap;
+      background: var(--bg-header);
+      color: var(--fg-header);
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+    th:nth-child(2) {
+      text-align: right;
+    }
+
+    th, td {
+      padding: 0 12px;
+      border-bottom: none;
+      line-height: 1;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tbody tr.row-odd td { background-color: var(--bg-row-odd); }
+    tbody tr.row-even td { background-color: var(--bg-row-even); }
+    tbody tr:hover td { background-color: var(--bg-row-hover); }
+
+    /* --- Row Selection (Persistent Click Highlight) --- */
+    tbody tr.row-selected td {
+      background-color: var(--bg-row-selected) !important;
+    }
+
+    /* Column Sizing */
+    col:first-child,
+    thead th:first-child,
+    tbody td:first-child {
+      width: auto !important;
+      min-width: {{TREE_NAME_MIN_PX}}px !important;
+      max-width: none !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .full-width col:first-child,
+    .full-width thead th:first-child,
+    .full-width tbody td:first-child {
+      width: auto !important;
+      min-width: auto !important;
+      max-width: none !important;
+    }
+    
+    col:nth-child(2) { width: {{COL_SIZE_WIDTH_PX}}px !important; }
+    col:nth-child(3) { width: {{COL_DATE_WIDTH_PX}}px !important; }
+    col:nth-child(4) { width: {{COL_MIME_WIDTH_PX}}px !important; }
+    col:nth-child(5) { width: {{COL_OWNER_WIDTH_PX}}px !important; }
+
+    thead th:nth-child(n+2),
+    tbody td:nth-child(n+2) {
+      white-space: nowrap;
+    }
+
+    /* Tree Styling */
+    .tree {
+      font-family: {{TREE_FONT_FAMILY}};
+      white-space: pre;
+      font-size: {{TREE_FONT_SIZE_PX}}px;
+      letter-spacing: {{TREE_LETTER_SPACING_PX}}px;
+    }
+
+    .icon-folder {
+      font-size: {{ICON_FOLDER_FONT_SIZE_PX}}px;
+      vertical-align: bottom;
+      cursor: pointer;
+    }
+
+    .icon-file {
+      font-size: {{ICON_FILE_FONT_SIZE_PX}}px;
+    }
+
+    tbody td:first-child a,
+    tbody td:first-child {
+      font-size: {{NAME_FONT_SIZE_PX}}px;
+      letter-spacing: {{NAME_LETTER_SPACING_PX}}px;
+    }
+
+    /* Meta Text */
+    .fsize {
+      color: var(--fg-size-folder);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .fsize-file {
+      color: var(--fg-size-file);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .date, .mime, .owner {
+      color: var(--fg-meta);
+      text-align: left;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Back To Top */
+    .topbtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: var(--bg-btn);
+      color: var(--fg-btn);
+      opacity: 0;
+      visibility: hidden;
+      font-size: 22px;
+      line-height: 1;
+      transition: opacity 0.5s, visibility 0.5s, color 0.2s, font-weight 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .topbtn.show {
+      opacity: 0.8;
+      visibility: visible;
+    }
+
+    .topbtn.show:hover {
+      opacity: 1.0;
+      color: var(--fg-link);
+      transform: translateY(-2px);
+    }
+
+    /* Summary */
+    .summary {
+      font-size: 0.95em;
+      margin-top: 0;
+      padding: 12px;
+      background: var(--bg-summary);
+    }
+    
+    tfoot td {
+      padding: 24px 0 12px 0;
+    }
+
+    .summary ul {
+      line-height: 1.4;
+    }
+
+    .summary .summary-title {
+      color: var(--fg-summary-title);
+      margin-right: 4px;
+      font-weight: 600;
+    }
+
+    .summary .summary-value {
+      color: var(--fg-summary-val);
+    }
+
+    /* --- Loader (Overlay Mode) --- */
+    .loader {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      background-color: var(--bg-topbar);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 2000;
+      font-size: 15px;
+      font-weight: bold;
+      pointer-events: all;
+    }
+
+    @keyframes vividPulse {
+      0% { background-color: var(--loader-bg-a); }
+      50% { background-color: var(--loader-bg-b); }
+      100% { background-color: var(--loader-bg-a); }
+    }
+
+    body:not(.ready) .loader {
+      visibility: visible;
+      opacity: 1;
+      animation: vividPulse 1.2s infinite ease-in-out;
+    }
+
+    /* Level Selector (Header) */
+    .level-icons {
+      display: inline-flex;
+      gap: 0;
+      align-items: center;
+      max-width: 100%;
+      overflow: auto;
+      padding: 2px 0;
+    }
+
+    .level-icon {
+      cursor: pointer;
+      font-size: 17.5px;
+      letter-spacing: -3px;
+      padding: 2px 1px;
+      border-radius: 6px;
+      user-select: none;
+      transition: opacity 0.18s, transform 0.12s;
+    }
+
+    .level-icon:hover {
+      transform: translateY(-2px);
+    }
+
+    .header-fade {
+      transition: opacity 0.25s;
+    }
+
+    .level-header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .level-toggle-btn {
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 4px;
+      user-select: none;
+    }
+
+    .level-toggle-btn:hover {
+      opacity: 0.7;
+    }
+    
+    #treeHeaderText {
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class='topbar'>
+    <h2 id="topbarTitle" data-rootname="{{PAGE_TITLE}}" title="File tree for: {{PAGE_TITLE}}">File tree for: <span style="color: var(--fg-size-folder);">{{PAGE_TITLE}}</span></h2>
+    <div>
+      <div id="loader" class="loader">Loading...</div>
+      
+      <div id="searchWidget" class="search-widget">
+        <div id="searchControls" class="search-controls hidden">
+          <input type="text" id="searchInput" class="search-input" placeholder="Find..." autocomplete="off">
+          <span id="searchCounter" class="search-counter">0/0</span>
+          <button id="searchPrevBtn" class="search-nav-btn" title="Previous (Shift+Enter)">▲</button>
+          <button id="searchNextBtn" class="search-nav-btn" title="Next (Enter)">▼</button>
+        </div>
+        
+        <button id="searchSettingsBtn" class="search-settings-btn" title="Search Options">
+          🛠
+        </button>
+
+        <button id="searchTriggerBtn" class="topbar-btn" title="Find (Ctrl+F)">
+          🔍
+        </button>
+      </div>
+
+      <button id="menuTriggerBtn" class="topbar-btn" title="Settings">
+        ⚙️
+      </button>
+
+      <div id="settingsMenu" class="settings-menu">
+        
+        <div class="menu-row">
+          <span class="menu-label">Theme:</span>
+          <div class="menu-controls">
+            <button id="btnToggleTheme" class="slider-toggle-btn" title="Toggle Light/Dark Mode">
+                <div class="slider-toggle-track">
+                    <span class="slider-icon left-icon">☀️</span>
+                    <span class="slider-icon right-icon">🌙</span>
+                </div>
+                <div class="slider-toggle-thumb"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-row">
+          <span class="menu-label">Level Selectors:</span>
+          <div class="menu-controls">
+            <button id="btnToggleLevel" class="slider-toggle-btn toggled" title="Toggle Level Selectors">
+                <div class="slider-toggle-track">
+                    <span class="slider-icon left-icon" id="iconLevelShow">📂</span>
+                    <span class="slider-icon right-icon">❌&#xFE0F;</span>
+                </div>
+                <div class="slider-toggle-thumb"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-row">
+          <span class="menu-label">Name mode:</span>
+          <div class="menu-controls">
+            <button id="btnToggleName" class="slider-toggle-btn" title="Toggle Cut/Full Name Mode">
+                <div class="slider-toggle-track">
+                    <span class="slider-icon left-icon">✂️</span>
+                    <span class="slider-icon right-icon">↔️</span>
+                </div>
+                <div class="slider-toggle-thumb"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-footer">
+          <button id="menuCloseBtn" class="menu-close-btn">Close</button>
+        </div>
+      </div> 
+      
+      <div id="searchSettingsMenu" class="settings-menu search-settings-menu">
+        <div class="menu-row">
+          <span class="menu-label">Target Columns:</span>
+        </div>
+
+        <div class="menu-row">
+          <span class="check-label" id="lblSearchName">Name</span>
+          <span id="chkSearchName" class="menu-option state-active" 
+                data-on="☑" data-off="☐" title="Search in Name">☑</span>
+        </div>
+
+        <div class="menu-row">
+          <span class="check-label" id="lblSearchMime">MIME Type</span>
+          <span id="chkSearchMime" class="menu-option" 
+                data-on="☑" data-off="☐" title="Search in MIME Type">☐</span>
+        </div>
+
+        <div class="menu-row">
+          <span class="check-label" id="lblSearchOwner">Owner</span>
+          <span id="chkSearchOwner" class="menu-option" 
+                data-on="☑" data-off="☐" title="Search in Owner">☐</span>
+        </div>
+
+        <div class="menu-row">
+          <div style="display:flex; align-items:center;">
+            <span class="check-label" id="lblSearchSizeDate" title="Supports > < operators">Size or Date</span>
+            <a href="#" id="lnkSyntaxHelp" style="font-size:0.85em; margin-left:6px; white-space:nowrap;" title="Toggle Syntax Help">(Syntax ℹ️)</a>
+          </div>
+          <span id="chkSearchSizeDate" class="menu-option" 
+                data-on="☑" data-off="☐" title="Search by Size and/or Date (Exclusively)">☐</span>
+        </div>
+
+        <div class="menu-row">
+          <span class="sep" style="width:100%; border-bottom:1px solid var(--border-menu); margin: 4px 0;"></span>
+        </div>
+
+        <div class="menu-row">
+          <span class="check-label" id="lblSearchCase">Case Insensitive</span>
+          <span id="chkSearchCase" class="menu-option state-active" 
+                data-on="☑" data-off="☐" title="Toggle Case Sensitivity">☑</span>
+        </div>
+
+        <div class="menu-footer">
+          <button id="searchMenuCloseBtn" class="menu-close-btn">Close</button>
+        </div>
+      </div> 
+    </div>
+  </div>
+
+  <div id="toastMessage" class="toast-container">Collapsed folders contents will be ignored by the search</div>
+
+  <div id="scrollArea" class="clusterize-scroll">
+    <table>
+      <colgroup>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th><span id='treeHeaderText'>Tree + Name</span></th>
+          <th>Size</th>
+          <th>Modified Date</th>
+          <th>MIME Type</th>
+          <th>Owner</th>
+        </tr>
+      </thead>
+      <tbody id="contentArea" class="clusterize-content">
+        {{TABLE_ROWS}}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5">
+            <div class='summary'>
+              <h3 style='margin:0 0 8px 0;'>📊 Export Summary:</h3>
+              <ul style='margin:0; padding-left:18px;'>
+                <li><span class="summary-title">Account:</span><span class="summary-value">{{SUMMARY_ACCOUNT}}</span></li>
+                <li><span class="summary-title">Root folder:</span><span class="summary-value">{{SUMMARY_ROOT_FOLDER}}</span></li>
+                <li><span class="summary-title">Total folders:</span><span class="summary-value">{{SUMMARY_TOTAL_FOLDERS}}</span></li>
+                <li><span class="summary-title">Total files:</span><span class="summary-value">{{SUMMARY_TOTAL_FILES}}</span></li>
+                <li><span class="summary-title">Rows exported:</span><span class="summary-value">{{SUMMARY_ROWS_EXPORTED}}</span></li>
+                <li><span class="summary-title">Total size:</span><span class="summary-value">{{SUMMARY_TOTAL_SIZE}}</span></li>
+                <li><span class="summary-title">Maximum depth level:</span><span class="summary-value">{{SUMMARY_MAX_DEPTH}}</span></li>
+                <li><span class="summary-title">Data acquisition date:</span><span class="summary-value">{{SUMMARY_ACQ_DATE}}</span></li>
+                <li><span class="summary-title">Created using:</span><span class="summary-value">{{SUMMARY_CREATED_BY}}</span></li>
+                <li><span class="summary-title">Script version:</span><span class="summary-value">{{SUMMARY_VERSION}}</span></li>
+                <li><span class="summary-title">Html template version:</span><span class="summary-value" id="summary-template-version"></span></li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div> 
+  
+  <button class='topbtn' id='topBtn' title='Back to Top' onclick='scrollToTop()'>⊼</button>
+
+  <script>
+    /* Clusterize.js - v1.0.0 - 2023-01-22
+     http://NeXTs.github.com/Clusterize.js/
+     Copyright (c) 2015 Denis Lukov; Licensed MIT */
+    ;(function(p,m){"undefined"!=typeof module?module.exports=m():"function"==typeof define&&"object"==typeof define.amd?define(m):this[p]=m()})("Clusterize",function(){function p(b,a,c){return a.addEventListener?a.addEventListener(b,c,!1):a.attachEvent("on"+b,c)}function m(b,a,c){return a.removeEventListener?a.removeEventListener(b,c,!1):a.detachEvent("on"+b,c)}function t(b){return"[object Array]"===Object.prototype.toString.call(b)}function q(b,a){return window.getComputedStyle?window.getComputedStyle(a)[b]:
+    a.currentStyle[b]}var r=function(){for(var b=3,a=document.createElement("b"),c=a.all||[];a.innerHTML="\x3c!--[if gt IE "+ ++b+"]><i><![endif]--\x3e",c[0];);return 4<b?b:document.documentMode}(),C=navigator.platform.toLowerCase().indexOf("mac")+1,n=function(b){if(!(this instanceof n))return new n(b);var a=this,c={rows_in_block:50,blocks_in_cluster:4,tag:null,show_no_data_row:!0,no_data_class:"clusterize-no-data",no_data_text:"No data",keep_parity:!0,callbacks:{}};a.options={};for(var d="rows_in_block blocks_in_cluster show_no_data_row no_data_class no_data_text keep_parity tag callbacks".split(" "),
+    h=0,g;g=d[h];h++)a.options[g]="undefined"!=typeof b[g]&&null!=b[g]?b[g]:c[g];c=["scroll","content"];for(h=0;d=c[h];h++)if(a[d+"_elem"]=b[d+"Id"]?document.getElementById(b[d+"Id"]):b[d+"Elem"],!a[d+"_elem"])throw Error("Error! Could not find "+d+" element");a.content_elem.hasAttribute("tabindex")||a.content_elem.setAttribute("tabindex",0);var e=t(b.rows)?b.rows:a.fetchMarkup(),k={};b=a.scroll_elem.scrollTop;a.insertToDOM(e,k);a.scroll_elem.scrollTop=b;var l=!1,w=0,u=!1,x=function(){C&&(u||(a.content_elem.style.pointerEvents=
+    "none"),u=!0,clearTimeout(w),w=setTimeout(function(){a.content_elem.style.pointerEvents="auto";u=!1},50));l!=(l=a.getClusterNum(e))&&a.insertToDOM(e,k);a.options.callbacks.scrollingProgress&&a.options.callbacks.scrollingProgress(a.getScrollProgress())},y=0,z=function(){clearTimeout(y);y=setTimeout(a.refresh,100)};p("scroll",a.scroll_elem,x);p("resize",window,z);a.destroy=function(f){m("scroll",a.scroll_elem,x);m("resize",window,z);a.html((f?a.generateEmptyRow():e).join(""))};a.refresh=function(f){(a.getRowsHeight(e)||
+    f)&&a.update(e)};a.update=function(f){e=t(f)?f:[];f=a.scroll_elem.scrollTop;e.length*a.options.item_height<f&&(l=a.scroll_elem.scrollTop=0);a.insertToDOM(e,k);a.scroll_elem.scrollTop=f};a.clear=function(){a.update([])};a.getRowsAmount=function(){return e.length};a.getScrollProgress=function(){return this.options.scroll_top/(e.length*this.options.item_height)*100||0};var B=function(f,A){var v=t(A)?A:[];v.length&&(e="append"==f?e.concat(v):v.concat(e),a.insertToDOM(e,k))};a.append=function(f){B("append",
+    f)};a.prepend=function(f){B("prepend",f)}};n.prototype={constructor:n,fetchMarkup:function(){for(var b=[],a=this.getChildNodes(this.content_elem);a.length;)b.push(a.shift().outerHTML);return b},exploreEnvironment:function(b,a){var c=this.options;c.content_tag=this.content_elem.tagName.toLowerCase();b.length&&(r&&9>=r&&!c.tag&&(c.tag=b[0].match(/<([^>\s/]*)/)[1].toLowerCase()),1>=this.content_elem.children.length&&(a.data=this.html(b[0]+b[0]+b[0])),c.tag||(c.tag=this.content_elem.children[0].tagName.toLowerCase()),
+    this.getRowsHeight(b))},getRowsHeight:function(b){var a=this.options,c=a.item_height;a.cluster_height=0;if(b.length&&(b=this.content_elem.children,b.length)){var d=b[Math.floor(b.length/2)];a.item_height=d.offsetHeight;"tr"==a.tag&&"collapse"!=q("borderCollapse",this.content_elem)&&(a.item_height+=parseInt(q("borderSpacing",this.content_elem),10)||0);"tr"!=a.tag&&(b=parseInt(q("marginTop",d),10)||0,d=parseInt(q("marginBottom",d),10)||0,a.item_height+=Math.max(b,d));a.block_height=a.item_height*a.rows_in_block;
+    a.rows_in_cluster=a.blocks_in_cluster*a.rows_in_block;a.cluster_height=a.blocks_in_cluster*a.block_height;return c!=a.item_height}},getClusterNum:function(b){var a=this.options;a.scroll_top=this.scroll_elem.scrollTop;var c=a.cluster_height-a.block_height;return Math.min(Math.floor(a.scroll_top/c),Math.floor(b.length*a.item_height/c))},generateEmptyRow:function(){var b=this.options;if(!b.tag||!b.show_no_data_row)return[];var a=document.createElement(b.tag),c=document.createTextNode(b.no_data_text);
+    a.className=b.no_data_class;if("tr"==b.tag){var d=document.createElement("td");d.colSpan=100;d.appendChild(c)}a.appendChild(d||c);return[a.outerHTML]},generate:function(b){var a=this.options,c=b.length;if(c<a.rows_in_block)return{top_offset:0,bottom_offset:0,rows_above:0,rows:c?b:this.generateEmptyRow()};var d=Math.max((a.rows_in_cluster-a.rows_in_block)*this.getClusterNum(b),0),h=d+a.rows_in_cluster,g=Math.max(d*a.item_height,0);a=Math.max((c-h)*a.item_height,0);c=[];var e=d;for(1>g&&e++;d<h;d++)b[d]&&
+    c.push(b[d]);return{top_offset:g,bottom_offset:a,rows_above:e,rows:c}},renderExtraTag:function(b,a){var c=document.createElement(this.options.tag);c.className=["clusterize-extra-row","clusterize-"+b].join(" ");a&&(c.style.height=a+"px");return c.outerHTML},insertToDOM:function(b,a){this.options.cluster_height||this.exploreEnvironment(b,a);var c=this.generate(b),d=c.rows.join(""),h=this.checkChanges("data",d,a),g=this.checkChanges("top",c.top_offset,a),e=this.checkChanges("bottom",c.bottom_offset,
+    a),k=this.options.callbacks,l=[];h||g?(c.top_offset&&(this.options.keep_parity&&l.push(this.renderExtraTag("keep-parity")),l.push(this.renderExtraTag("top-space",c.top_offset))),l.push(d),c.bottom_offset&&l.push(this.renderExtraTag("bottom-space",c.bottom_offset)),k.clusterWillChange&&k.clusterWillChange(),this.html(l.join("")),"ol"==this.options.content_tag&&this.content_elem.setAttribute("start",c.rows_above),this.content_elem.style["counter-increment"]="clusterize-counter "+(c.rows_above-1),k.clusterChanged&&
+    k.clusterChanged()):e&&(this.content_elem.lastChild.style.height=c.bottom_offset+"px")},html:function(b){var a=this.content_elem;if(r&&9>=r&&"tr"==this.options.tag){var c=document.createElement("div");for(c.innerHTML="<table><tbody>"+b+"</tbody></table>";b=a.lastChild;)a.removeChild(b);for(c=this.getChildNodes(c.firstChild.firstChild);c.length;)a.appendChild(c.shift())}else a.innerHTML=b},getChildNodes:function(b){b=b.children;for(var a=[],c=0,d=b.length;c<d;c++)a.push(b[c]);return a},checkChanges:function(b,
+    a,c){var d=a!=c[b];c[b]=a;return d}};return n});
+  </script>
+
+  <script>
+    // Dynamic width's eager initialization: prevents TDZ and guarantees existence
+    const dynamicStyleEl = document.createElement('style');
+    document.head.appendChild(dynamicStyleEl);
+    
+    // Default backup width
+    let originalMinWidth = 300;
+
+    // Template Constants
+    const STORAGE_HASH = '{{STORAGE_HASH}}';
+    const GLOBAL_PREFIX = '{{GLOBAL_PREFIX}}';
+    const FILE_PREFIX = GLOBAL_PREFIX + 'file_' + STORAGE_HASH + '_';
+    
+    // Storage Keys
+    const THEME_KEY = '{{GLOBAL_PREFIX}}theme';
+    const WIDTH_KEY = FILE_PREFIX + 'width_mode';
+    const COLLAPSE_KEY = FILE_PREFIX + 'collapsed';
+    const LEVEL_KEY = FILE_PREFIX + 'level_mode';
+    const SEARCH_PREFS_KEY = GLOBAL_PREFIX + 'search_prefs';
+
+    // Storage Helper
+    const SafeStorage = {
+      get: (key, defaultVal = null) => {
+        try { return localStorage.getItem(key) ?? defaultVal; } catch (e) { return defaultVal; }
+      },
+      set: (key, value) => {
+        try { localStorage.setItem(key, value); } catch (e) {}
+      },
+      getJSON: (key, defaultVal = []) => {
+        try { const item = localStorage.getItem(key); return item ? JSON.parse(item) : defaultVal; } catch (e) { return defaultVal; }
+      },
+      setJSON: (key, value) => {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+      }
+    };
+
+    function getNodeIdentifier(tr) {
+      if (!tr) return null;
+      return tr.getAttribute('data-nodeid') || tr.getAttribute('data-nodekey') || 
+             (tr.querySelector('.icon-folder')?.parentElement.textContent.trim());
+    }
+
+    // --- SCROLL LOGIC ---
+    const scrollArea = document.getElementById('scrollArea');
+    const topBtn = document.getElementById('topBtn');
+    let mouseOverBtn = false;
+
+    function scrollToTop() { scrollArea.scrollTo({ top: 0, behavior: 'smooth' }); }
+    
+    topBtn.addEventListener('mouseenter', () => { mouseOverBtn = true; });
+    topBtn.addEventListener('mouseleave', () => {
+      mouseOverBtn = false;
+      if (scrollArea.scrollTop <= 100) topBtn.classList.remove('show');
+    });
+
+    function handleScroll() {
+      const cur = scrollArea.scrollTop || 0;
+      if (cur > 100) topBtn.classList.add('show');
+      else if (!mouseOverBtn) topBtn.classList.remove('show');
+    }
+    scrollArea.addEventListener('scroll', handleScroll);
+
+    // --- MENU & STATE LOGIC ---
+    const menuTriggerBtn = document.getElementById('menuTriggerBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
+    
+    menuTriggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsMenu.classList.toggle('open');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (settingsMenu.classList.contains('open') && !settingsMenu.contains(e.target) && e.target !== menuTriggerBtn) {
+        settingsMenu.classList.remove('open');
+      }
+    }, true); 
+
+    document.getElementById('menuCloseBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsMenu.classList.remove('open');
+    });
+
+    function setToggleState(btnId, isToggled) {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        if (isToggled) btn.classList.add('toggled');
+        else btn.classList.remove('toggled');
+      }
+    }
+
+    function toggleDarkMode(forceDark = null) {
+      const isDark = (forceDark !== null) ? forceDark : document.documentElement.classList.toggle('dark');
+      if (isDark) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      SafeStorage.set(THEME_KEY, isDark ? 'dark' : 'light');
+      setToggleState('btnToggleTheme', isDark);
+    }
+
+    function toggleWidthMode(forceFull = null) {
+      const isFull = (forceFull !== null) ? forceFull : document.body.classList.toggle('full-width');
+      if (isFull) document.body.classList.add('full-width');
+      else document.body.classList.remove('full-width');
+      SafeStorage.set(WIDTH_KEY, isFull ? 'full' : 'cut');
+      setToggleState('btnToggleName', isFull);
+
+      if (isFull && typeof dynamicStyleEl !== 'undefined' && dynamicStyleEl) {
+        dynamicStyleEl.textContent = '';
+      }
+    }
+
+    // --- Event Bindings ---
+    document.getElementById('btnToggleTheme').addEventListener('click', () => toggleDarkMode());
+    document.getElementById('btnToggleName').addEventListener('click', () => toggleWidthMode());
+
+    // --- Startup Synchronization ---
+    (function syncStartupState() {
+        setToggleState('btnToggleTheme', document.documentElement.classList.contains('dark'));
+        const savedWidth = SafeStorage.get(WIDTH_KEY);
+        if (savedWidth === 'full') toggleWidthMode(true);
+        else setToggleState('btnToggleName', false);
+    })();
+    
+    // --- SEARCH WIDGET LOGIC ---
+    const searchTriggerBtn = document.getElementById('searchTriggerBtn');
+    const searchWidget = document.getElementById('searchWidget');
+    const searchControls = document.getElementById('searchControls');
+    const searchInput = document.getElementById('searchInput');
+    const searchCounter = document.getElementById('searchCounter');
+    const searchPrevBtn = document.getElementById('searchPrevBtn');
+    const searchNextBtn = document.getElementById('searchNextBtn');
+    
+    let isSearchOpen = false;
+
+    // --- SEARCH SETTINGS ---
+    const searchSettingsBtn = document.getElementById('searchSettingsBtn');
+    const searchSettingsMenu = document.getElementById('searchSettingsMenu');
+    
+    const chkName = document.getElementById('chkSearchName');
+    const chkMime = document.getElementById('chkSearchMime');
+    const chkOwner = document.getElementById('chkSearchOwner');
+    const chkSizeDate = document.getElementById('chkSearchSizeDate');
+    const chkCase = document.getElementById('chkSearchCase');
+    
+    let chkDiacritics = null; 
+
+    function updatePlaceholder() {
+      if (chkSizeDate.classList.contains('state-active')) {
+        searchInput.placeholder = "Size/Date expression";
+      } else {
+        const parts = [];
+        if (chkName.classList.contains('state-active')) parts.push("Name");
+        if (chkMime.classList.contains('state-active')) parts.push("Type");
+        if (chkOwner.classList.contains('state-active')) parts.push("Owner");
+        if (parts.length === 0) searchInput.placeholder = "Select filter...";
+        else searchInput.placeholder = "Find " + parts.join('/');
+      }
+    }
+
+    function saveSearchPrefs() {
+      const prefs = {
+        name: chkName.classList.contains('state-active'),
+        mime: chkMime.classList.contains('state-active'),
+        owner: chkOwner.classList.contains('state-active'),
+        sizedate: chkSizeDate.classList.contains('state-active'),
+        ignoreCase: chkCase.classList.contains('state-active'),
+        ignoreDiacritics: chkDiacritics ? chkDiacritics.classList.contains('state-active') : true
+      };
+      SafeStorage.setJSON(SEARCH_PREFS_KEY, prefs);
+      updatePlaceholder();
+      if (isSearchOpen) updateHeaderHighlights();
+    }
+
+    function toggleCheckbox(el, forceState = null) {
+      const isActive = el.classList.contains('state-active');
+      const newState = (forceState !== null) ? forceState : !isActive;
+      if (newState) {
+        el.classList.add('state-active');
+        el.textContent = el.dataset.on;
+      } else {
+        el.classList.remove('state-active');
+        el.textContent = el.dataset.off;
+      }
+      if (el.id.indexOf('chkSearch') !== -1) saveSearchPrefs();
+      return newState;
+    }
+
+    searchSettingsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      searchSettingsMenu.classList.toggle('open');
+      searchSettingsBtn.classList.toggle('active', searchSettingsMenu.classList.contains('open'));
+    });
+
+    document.getElementById('searchMenuCloseBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      searchSettingsMenu.classList.remove('open');
+      searchSettingsBtn.classList.remove('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (searchSettingsMenu.classList.contains('open') && 
+          !searchSettingsMenu.contains(e.target) && e.target !== searchSettingsBtn) {
+        searchSettingsMenu.classList.remove('open');
+        searchSettingsBtn.classList.remove('active');
+      }
+    }, true);
+
+    let performSearch = () => {}; 
+    let triggerSearchIfOpen = () => { if (searchInput.value.length >= 2) performSearch(); };
+
+    function handleTextGroupClick(clickedEl) {
+      const newState = toggleCheckbox(clickedEl);
+      if (newState) {
+        toggleCheckbox(chkSizeDate, false);
+      } else {
+        const anyTextActive = chkName.classList.contains('state-active') ||
+                              chkMime.classList.contains('state-active') ||
+                              chkOwner.classList.contains('state-active');
+        if (!anyTextActive && !chkSizeDate.classList.contains('state-active')) {
+          toggleCheckbox(clickedEl, true);
+        }
+      }
+      updatePlaceholder();
+      triggerSearchIfOpen();
+    }
+
+    function handleSpecialGroupClick() {
+      const newState = toggleCheckbox(chkSizeDate);
+      if (newState) {
+        toggleCheckbox(chkName, false);
+        toggleCheckbox(chkMime, false);
+        toggleCheckbox(chkOwner, false);
+      } else {
+        const anyTextActive = chkName.classList.contains('state-active') ||
+                              chkMime.classList.contains('state-active') ||
+                              chkOwner.classList.contains('state-active');
+        if (!anyTextActive && !chkSizeDate.classList.contains('state-active')) {
+          toggleCheckbox(chkSizeDate, true);
+        }
+      }
+      updatePlaceholder();
+      triggerSearchIfOpen();
+    }
+
+    [chkName, chkMime, chkOwner].forEach(el => {
+      el.addEventListener('click', () => handleTextGroupClick(el));
+      const lbl = document.getElementById(el.id.replace('chk', 'lbl'));
+      if (lbl) lbl.addEventListener('click', () => handleTextGroupClick(el));
+    });
+
+    chkSizeDate.addEventListener('click', handleSpecialGroupClick);
+    document.getElementById('lblSearchSizeDate').addEventListener('click', handleSpecialGroupClick);
+
+    [chkCase].forEach(el => {
+      el.addEventListener('click', () => { toggleCheckbox(el); triggerSearchIfOpen(); });
+      const lbl = document.getElementById(el.id.replace('chk', 'lbl'));
+      if (lbl) lbl.addEventListener('click', () => { toggleCheckbox(el); triggerSearchIfOpen(); });
+    });
+    
+    searchWidget.addEventListener('mousedown', (e) => {
+      if (e.target !== searchInput && e.target !== searchSettingsBtn && e.target !== searchTriggerBtn) {
+        e.preventDefault(); 
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const key = (e.key || '').toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && key === 'f') {
+        e.preventDefault(); 
+        if (!searchWidget.classList.contains('active')) searchTriggerBtn.click();
+        setTimeout(() => { searchInput.focus(); searchInput.select(); }, 10);
+      }
+    });
+    
+    let anyFolderCollapsed = false; 
+    let showLevelIcons = () => {}; 
+    let searchResults = []; 
+    let currentMatchIndex = -1;
+    let searchDebounce = null;
+    let updateVirtualList = () => {};
+    let saveCollapseState = () => {};
+    let updateHeaderHighlights = () => {};
+
+    // --- TOAST LOGIC ---
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById('toastMessage');
+      if (!t) return;
+      if (msg) t.textContent = msg;
+      t.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3000);
+    }
+
+    // --- SEARCH TRIGGER ---
+    searchTriggerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      isSearchOpen = !isSearchOpen;
+      
+      if (isSearchOpen) {
+        searchWidget.classList.add('active');
+        searchControls.classList.remove('hidden');
+        searchTriggerBtn.textContent = '✕';
+        searchTriggerBtn.title = 'Close Search';
+        searchInput.focus();
+        
+        if (anyFolderCollapsed) {
+          showToast("Collapsed folders contents will be ignored by the search");
+          showLevelIcons(); 
+        }
+        
+        updateHeaderHighlights();
+        if (searchInput.value.length >= 2) performSearch();
+      } else {
+        searchWidget.classList.remove('active');
+        searchControls.classList.add('hidden');
+        searchTriggerBtn.textContent = '🔍';
+        searchTriggerBtn.title = 'Find (Ctrl+F)';
+        searchResults = [];
+        currentMatchIndex = -1;
+        updateVirtualList(); 
+        
+        updateHeaderHighlights(); 
+        adjustFirstColumnWidth(-1);
+      }
+    });
+
+    searchWidget.addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      if (e.target !== searchSettingsBtn && e.target !== searchTriggerBtn) {
+        searchInput.focus();
+      }
+    });
+
+    function adjustFirstColumnWidth(rowIndex) {
+      // Reset if invalid row
+      if (rowIndex === null || rowIndex < 0 || !window.allRowsHtml || !window.allRowsHtml[rowIndex]) {
+        dynamicStyleEl.textContent = '';
+        return;
+      }
+
+      // 1. Create a temp table that exactly mimics the real one
+      const sourceTable = document.querySelector('#scrollArea table');
+      const tempTable = document.createElement('table');
+      
+      // Copy classes to ensure fonts/theme match
+      if (sourceTable) tempTable.className = sourceTable.className;
+      
+      // Crucial: Force 'auto' layout on temp table so it expands to fit content
+      // Position off-screen but strictly part of the DOM for rendering
+      tempTable.style.cssText = `
+        position: absolute; 
+        top: -9999px; 
+        left: -9999px; 
+        visibility: hidden; 
+        table-layout: auto !important; 
+        width: auto !important; 
+        white-space: nowrap; 
+        z-index: -1000;
+        border-collapse: collapse;
+      `;
+      
+      // Inject the specific row
+      tempTable.innerHTML = '<tbody>' + window.allRowsHtml[rowIndex] + '</tbody>';
+      document.body.appendChild(tempTable);
+      
+      const td = tempTable.querySelector('td');
+      if (td) {
+        // Reset cell styles to allow natural expansion
+        td.style.width = 'auto';
+        td.style.minWidth = '0';
+        td.style.maxWidth = 'none';
+        td.style.whiteSpace = 'nowrap';
+        
+        // Measure with a safe buffer
+        // Firefox on Linux often renders slightly wider than calculated, so we add 60px padding
+        const rect = td.getBoundingClientRect();
+        const calculatedWidth = Math.ceil(rect.width + 60);
+        
+        // Ensure we don't go smaller than the default view
+        const finalWidth = Math.max(calculatedWidth, originalMinWidth);
+        
+        // 2. Inject CSS that forces the Width AND Min-Width
+        // We also force the TABLE to be at least this wide to prevent crunching
+        dynamicStyleEl.textContent = `
+          #scrollArea table {
+             min-width: ${finalWidth + 400}px !important; 
+          }
+          #scrollArea table col:first-child,
+          #scrollArea table thead th:first-child,
+          #scrollArea table tbody td:first-child {
+              width: ${finalWidth}px !important;
+              min-width: ${finalWidth}px !important;
+              max-width: none !important;
+              box-sizing: border-box !important;
+          }
+        `;
+      }
+      
+      // Cleanup
+      document.body.removeChild(tempTable);
+    }
+      
+    // --- UTILS: PARSERS ---
+    const SizeUtils = {
+      parse: function(str) {
+        if (!str) return 0;
+        const normalized = str.trim();
+        if (/^0\s*B?$/i.test(normalized)) return 0;
+        const match = normalized.match(/^([\d\.,]+)\s*([KMGT]B?|B)$/i);
+        if (!match) return 0;
+        let val = parseFloat(match[1].replace(',', '.'));
+        const unit = match[2].toUpperCase();
+        let multiplier = 1;
+        if (unit.startsWith('K')) multiplier = 1024;
+        else if (unit.startsWith('M')) multiplier = 1048576;
+        else if (unit.startsWith('G')) multiplier = 1073741824;
+        else if (unit.startsWith('T')) multiplier = 1099511627776;
+        return val * multiplier;
+      }
+    };
+
+    const DateUtils = {
+      parseContent: function(str) {
+        if (!str) return 0;
+        // Parses: DD/MM/YYYY HH:MM:SS
+        const parts = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+        if (parts) {
+           return new Date(parts[3], parts[2]-1, parts[1], parts[4]||0, parts[5]||0, parts[6]||0).getTime();
+        }
+        return 0;
+      },
+      parseQuery: function(str) {
+        // Handle "HH:MM" only (Time of Day)
+        if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(str)) {
+          const t = str.split(':');
+          return { 
+            type: 'time', 
+            val: (parseInt(t[0], 10)*3600) + (parseInt(t[1], 10)*60) + (parseInt(t[2]||0, 10)) 
+          };
+        }
+        
+        // Handle "YYYY" (Year only)
+        if (/^\d{4}$/.test(str)) {
+           const y = parseInt(str, 10);
+           return {
+             type: 'date',
+             val: new Date(y, 0, 1).getTime(),      // Jan 1st
+             nextVal: new Date(y + 1, 0, 1).getTime(), // Jan 1st of NEXT year
+             hasTime: false
+           };
+        }
+
+        // Handle "DD/MM/YYYY [HH:MM]"
+        let parts = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})(?:\s+(\d{1,2}):(\d{2}))?$/);
+        if (parts) {
+           const d = new Date(parts[3], parts[2]-1, parts[1], parts[4]||0, parts[5]||0);
+           const dNext = new Date(d);
+           dNext.setDate(d.getDate() + 1); // Start of NEXT day
+           
+           return {
+             type: 'date',
+             val: d.getTime(),
+             nextVal: dNext.getTime(), 
+             hasTime: !!parts[4] 
+           };
+        }
+        return { type: 'invalid', val: 0 };
+      },
+      getTimeOfDay: function(ts) {
+        const d = new Date(ts);
+        return (d.getHours() * 3600) + (d.getMinutes() * 60) + d.getSeconds();
+      },
+      getStartOfDay: function(ts) {
+        const d = new Date(ts);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime();
+      }
+    };
+    
+    const TextUtils = {
+        normalize: function(str, removeDiacritics, ignoreCase) {
+            if (!str) return "";
+            let res = str;
+            if (removeDiacritics) {
+                res = res.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            }
+            if (ignoreCase) {
+                res = res.toLowerCase();
+            }
+            return res;
+        }
+    };
+
+
+    // --- MAIN LOGIC ---
+    document.addEventListener('DOMContentLoaded', function() {
+
+      // --- Set a different icon for partially expanded folders in macOS ---
+      const isMac = (navigator.platform && /Mac|iPhone|iPod|iPad/.test(navigator.platform)) ||
+                    (navigator.userAgent && /Mac/.test(navigator.userAgent));
+      const ICON_LEVEL_PARTIAL = isMac ? '🗂️' : '🗁';  // '🗁' is not supported in macOS
+      
+      // Inject Template Version from Meta Tag
+      const metaVersion = document.querySelector('meta[name="template-version"]');
+      const summaryDisplay = document.getElementById('summary-template-version');
+      if (metaVersion && summaryDisplay) {
+        summaryDisplay.textContent = metaVersion.getAttribute('content');
+      }
+
+      // -- Inject "Ignore Diacritics" & "Help" Options --
+      const menuContainer = document.getElementById('searchSettingsMenu');
+      if (menuContainer) {
+          const footer = menuContainer.querySelector('.menu-footer');
+          
+          // 1. Ignore Diacritics Checkbox
+          if (!document.getElementById('chkSearchDiacritics')) {
+              const div = document.createElement('div');
+              div.className = 'menu-row';
+              div.innerHTML = `
+                <span class="check-label" id="lblSearchDiacritics">Ignore Diacritics</span>
+                <span id="chkSearchDiacritics" class="menu-option state-active" 
+                      data-on="☑" data-off="☐" title="Toggle Diacritics matching">☑</span>
+              `;
+              if (footer) menuContainer.insertBefore(div, footer);
+              else menuContainer.appendChild(div);
+          }
+          
+          // 2. Help Overlay (Settings-like Box)
+          // We create an absolute overlay that covers the menu content when active
+          if (!document.getElementById('searchHelpOverlay')) {
+              const overlay = document.createElement('div');
+              overlay.id = 'searchHelpOverlay';
+              
+              // Apply styles to make it look like a sub-page of the menu
+              overlay.style.cssText = `
+                  display: none;
+                  position: absolute;
+                  top: 0; left: 0; right: 0; bottom: 0;
+                  background: var(--bg-menu);
+                  z-index: 50;
+                  flex-direction: column;
+                  border-radius: 6px;
+                  padding: 10px 0 0 0;
+                  cursor: default;
+              `;
+
+              overlay.innerHTML = `
+                  <div style="flex: 1; overflow-y: auto; padding: 0 16px;">
+                      <h4 style="margin: 0 0 6px 0; color: var(--fg-menu-active); font-size: 13px; text-transform: uppercase;">Size/Date syntax</h4>
+                      <div style="font-size: 11px; line-height: 1.5; color: var(--fg-body);">
+                          <p style="margin: 0 0 8px 0; opacity: 0.9;">Besides standard text matching, the Size/Date mode also supports logical expressions using sizes, dates, and times.</p>
+                          
+                          <strong style="display:block; margin-bottom:4px; color:var(--fg-size-folder);">Operators</strong>
+                          <ul style="padding-left: 16px; margin: 0 0 10px 0;">
+                              <li><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> (Comparison)</li>
+                              <li><code>..</code> (Range)</li>
+                              <li>Space acts as an AND operator (Logic)</li>
+                          </ul>
+
+                          <strong style="display:block; margin-bottom:4px; color:var(--fg-size-file);">Examples</strong>
+                          <ul style="padding-left: 16px; margin: 0;">
+                              <li><code>&gt;10MB</code> (Larger than 10MB)</li>
+                              <li><code>&lt;2023</code> (Modified before the year 2023)</li>
+                              <li><code>&gt;2020 &lt;50MB</code> (After 2020 AND smaller than 50MB)</li>
+                              <li><code>10KB..1MB</code> (Between 10KB and 1MB)</li>
+                              <li><code>&lt;01/01/2020</code> (Before Jan 1st, 2020)</li>
+                              <li><code>&gt;21:00</code> (Modified after 9 PM)</li>
+                          </ul>
+                      </div>
+                  </div>
+                  <div class="menu-footer" style="margin-top: 8px;">
+                      <button id="btnCloseSyntaxHelp" class="menu-close-btn">OK</button>
+                  </div>
+              `;
+
+              menuContainer.appendChild(overlay);
+
+              // Stop clicks inside overlay from bubbling (and closing the parent menu)
+              overlay.addEventListener('click', (e) => e.stopPropagation());
+
+              // Helper to hide overlay
+              const closeOverlay = () => { overlay.style.display = 'none'; };
+
+              // Logic to Close the Overlay via OK button
+              const btnClose = overlay.querySelector('#btnCloseSyntaxHelp');
+              btnClose.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  closeOverlay();
+              });
+
+              // Logic to Reset Overlay (ensure it's hidden when menu is toggled or closed externally)
+              // 1. Hook into the main settings button (resets on toggle)
+              const settingsBtn = document.getElementById('searchSettingsBtn');
+              if (settingsBtn) {
+                  settingsBtn.addEventListener('click', closeOverlay);
+              }
+
+              // 2. Hook into the menu close button
+              const menuCloseBtn = document.getElementById('searchMenuCloseBtn');
+              if (menuCloseBtn) {
+                  menuCloseBtn.addEventListener('click', closeOverlay);
+              }
+
+              // 3. Hook into document click (resets when clicking outside)
+              document.addEventListener('click', (e) => {
+                  if (menuContainer.classList.contains('open') && 
+                      !menuContainer.contains(e.target) && 
+                      e.target !== settingsBtn) {
+                      closeOverlay();
+                  }
+              });
+          }
+
+          // 3. Bind the "Syntax ℹ️" link to Open the Overlay
+          const lnkHelp = document.getElementById('lnkSyntaxHelp');
+          if (lnkHelp) {
+             lnkHelp.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const overlay = document.getElementById('searchHelpOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+             });
+          }
+      }
+      
+      chkDiacritics = document.getElementById('chkSearchDiacritics');
+      if (chkDiacritics) {
+          chkDiacritics.addEventListener('click', () => { toggleCheckbox(chkDiacritics); triggerSearchIfOpen(); });
+          const lbl = document.getElementById('lblSearchDiacritics');
+          if (lbl) lbl.addEventListener('click', () => { toggleCheckbox(chkDiacritics); triggerSearchIfOpen(); });
+      }
+
+      const savedSearch = SafeStorage.getJSON(SEARCH_PREFS_KEY, null);
+      if (savedSearch) {
+          toggleCheckbox(chkName, !!savedSearch.name);
+          toggleCheckbox(chkMime, !!savedSearch.mime);
+          toggleCheckbox(chkOwner, !!savedSearch.owner);
+          toggleCheckbox(chkSizeDate, !!savedSearch.sizedate);
+          toggleCheckbox(chkCase, !!savedSearch.ignoreCase);
+          if (chkDiacritics) toggleCheckbox(chkDiacritics, savedSearch.ignoreDiacritics !== false);
+      }
+      updatePlaceholder();
+      
+      const firstCol = document.querySelector('colgroup col:first-child');
+      if (firstCol) {
+          const comp = getComputedStyle(firstCol);
+          originalMinWidth = parseInt(comp.minWidth) || 300;
+      }
+
+      const rows = Array.from(document.querySelectorAll('tbody tr'));
+      const allRowHtmlStrings = []; 
+      const rowData = []; 
+      
+      function getTargetTextNode(cell, colIndex) {
+        if (!cell) return null;
+        if (colIndex === 0) {
+            const a = cell.querySelector('a');
+            if (a) return a.firstChild; 
+            for (let k = cell.childNodes.length - 1; k >= 0; k--) {
+                const nd = cell.childNodes[k];
+                if (nd.nodeType === Node.TEXT_NODE && nd.nodeValue.trim().length > 0) return nd;
+            }
+        } else {
+            for (let k = 0; k < cell.childNodes.length; k++) {
+                const nd = cell.childNodes[k];
+                if (nd.nodeType === Node.TEXT_NODE) return nd;
+            }
+        }
+        return null;
+      }
+
+      rows.forEach((tr, i) => {
+        let depth = 0;
+        if (tr.dataset && tr.dataset.level) {
+          depth = parseInt(tr.dataset.level, 10) || 0;
+        } else {
+          const treeSpan = tr.querySelector('.tree');
+          let prefix = '';
+          if (treeSpan && treeSpan.childNodes.length) {
+            const first = treeSpan.childNodes[0];
+            prefix = (first.nodeType === Node.TEXT_NODE ? first.nodeValue : treeSpan.textContent) || '';
+          }
+          depth = Math.floor(prefix.length / 2);
+        }
+        
+        const id = getNodeIdentifier(tr);
+        const iconEl = tr.querySelector('.icon-folder');
+        const isFolder = !!iconEl;
+        if (iconEl) iconEl.setAttribute('data-index', i);
+
+        const cells = tr.cells;
+        const nodeName = getTargetTextNode(cells[0], 0);
+        const nodeSize = getTargetTextNode(cells[1], 1);
+        const nodeDate = getTargetTextNode(cells[2], 2);
+        const nodeMime = getTargetTextNode(cells[3], 3);
+        const nodeOwner = getTargetTextNode(cells[4], 4);
+
+        const txtSize = nodeSize ? nodeSize.nodeValue.trim() : '';
+        const txtDate = nodeDate ? nodeDate.nodeValue.trim() : '';
+
+        const valSize = SizeUtils.parse(txtSize);
+        const valDate = DateUtils.parseContent(txtDate);
+
+        tr.classList.remove('row-odd', 'row-even');
+        tr.classList.add(i % 2 === 0 ? 'row-odd' : 'row-even');
+        
+        // NEW: Bake the index into the TR element for breadcrumb lookups
+        tr.setAttribute('data-rowindex', i);
+
+        rowData.push({
+          depth,
+          isFolder,
+          id,
+          collapsed: false,
+          hasChildren: false,
+          isVisible: true,
+          txt_name: nodeName ? nodeName.nodeValue : '',
+          txt_size: txtSize,
+          val_size: valSize,
+          txt_date: txtDate,
+          val_date: valDate,
+          txt_mime: nodeMime ? nodeMime.nodeValue : '',
+          txt_owner: nodeOwner ? nodeOwner.nodeValue : ''
+        });
+        
+        allRowHtmlStrings.push(tr.outerHTML);
+      });
+      
+      window.allRowsHtml = allRowHtmlStrings;
+      window.rowData = rowData; // NEW: Expose data globally for the click listener
+
+      for (let i = 0; i < rowData.length; i++) {
+        const r = rowData[i];
+        for (let j = i + 1; j < rowData.length; j++) {
+          if (rowData[j].depth <= r.depth) break;
+          r.hasChildren = true;
+          break;
+        }
+        // If folder is empty, update HTML string to include 'icon-empty' class
+        // This ensures proper cursor style even with virtual scrolling
+        if (r.isFolder && !r.hasChildren) {
+             allRowHtmlStrings[i] = allRowHtmlStrings[i].replace('class="icon-folder"', 'class="icon-folder icon-empty"');
+        }
+      }
+
+      const storedCollapsed = SafeStorage.getJSON(COLLAPSE_KEY, []);
+      let anyCollapsed = false;
+      rowData.forEach((r) => {
+        if (!r.isFolder || !r.hasChildren || !r.id) return;
+        if (storedCollapsed.indexOf(r.id) !== -1) {
+          r.collapsed = true;
+          anyCollapsed = true;
+        }
+      });
+      anyFolderCollapsed = anyCollapsed;
+
+      const headerCell = document.querySelector('thead th');
+      const originalHeaderHTML = headerCell ? headerCell.innerHTML : 'Tree + Name';
+
+      if (headerCell) {
+        headerCell.addEventListener('click', function(e) {
+          if (e.target.id === 'treeHeaderText') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!levelIconsShown) showLevelIcons();
+            else hideLevelIcons();
+          }
+        });
+      }
+      
+      updateHeaderHighlights = function() {
+        const headers = document.querySelectorAll('thead th');
+        headers.forEach(th => th.classList.remove('search-target'));
+        if (!isSearchOpen) return;
+        
+        if (chkSizeDate.classList.contains('state-active')) {
+            if(headers[1]) headers[1].classList.add('search-target');
+            if(headers[2]) headers[2].classList.add('search-target');
+        } else {
+            if (chkName.classList.contains('state-active') && headers[0]) headers[0].classList.add('search-target');
+            if (chkMime.classList.contains('state-active') && headers[3]) headers[3].classList.add('search-target');
+            if (chkOwner.classList.contains('state-active') && headers[4]) headers[4].classList.add('search-target');
+        }
+      };
+
+      let levelIconsShown = false;
+      const maxFolderDepth = rowData.length ? Math.max(-1, ...rowData.filter(r => r.isFolder && r.hasChildren).map(r => r.depth)) : -1;
+      
+      // Use the dynamically determined partial icon here
+      const STATE_ICONS = { expanded: '📂', partial: ICON_LEVEL_PARTIAL, collapsed: '🗃️' };
+      
+      const STATE_TITLES = {
+        expanded: (lvl) => `Level ${lvl} is fully expanded. Click to collapse this level and all children.`,
+        partial: (lvl) => `Level ${lvl} is partially expanded. Click to collapse this level and all children. Ctrl+Click to expand all up to this level.`,
+        collapsed: (lvl) => `Level ${lvl} is collapsed. Click to expand all up to this level.`
+      };
+
+      saveCollapseState = () => {
+        const collapsedIds = rowData
+          .filter(r => r.isFolder && r.hasChildren && r.collapsed && r.id)
+          .map(r => r.id);
+        SafeStorage.setJSON(COLLAPSE_KEY, collapsedIds);
+        anyFolderCollapsed = collapsedIds.length > 0;
+      };
+
+      let clusterize = null;
+      
+      // --- SEARCH ENGINE ---
+      performSearch = function(keepIndex = false) {
+        let query = searchInput.value;
+        const searchActive = query.length >= 2;
+        
+        if (!searchActive) {
+          searchResults = [];
+          currentMatchIndex = -1;
+          searchCounter.textContent = "0/0";
+          updateVirtualList();
+          return;
+        }
+
+        const isCaseInsensitive = chkCase.classList.contains('state-active');
+        const ignoreDiacritics = chkDiacritics ? chkDiacritics.classList.contains('state-active') : false;
+        
+        const doName = chkName.classList.contains('state-active');
+        const doMime = chkMime.classList.contains('state-active');
+        const doOwner = chkOwner.classList.contains('state-active');
+        const doSizeDate = chkSizeDate.classList.contains('state-active');
+
+        const newResults = [];
+        const normalizedQuery = TextUtils.normalize(query, ignoreDiacritics, isCaseInsensitive);
+        let hideDepth = -1;
+
+        let isLogicSearch = false;
+        let useSize = false;
+        let useDate = false;
+        let comparisons = [];
+
+        if (doSizeDate && /[<>]=?|\.\./.test(query)) {
+          isLogicSearch = true;
+          let logicQuery = query;
+          
+          logicQuery = logicQuery.replace(/(\d)\s+([KMGT]B?|B)(?=\s|$|\.)/gi, '$1$2');
+          // Sanitize Dates in ranges
+          logicQuery = logicQuery.replace(/(\d{1,4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,4})\s+(\d{1,2}:\d{2})/g, '$1_$2');
+
+          const processVal = (rawVal) => {
+             const valStr = rawVal.replace('_', ' ');
+             const sizeVal = SizeUtils.parse(valStr);
+             if (valStr.toUpperCase().match(/[\d][KMGT]B?$/) || valStr.toUpperCase().match(/[\d]B$/) || (sizeVal > 0 && !valStr.includes(':') && !valStr.includes('/') && !valStr.includes('-'))) {
+               return { type: 'size', val: sizeVal };
+             }
+             if (valStr === '0') return { type: 'size', val: 0 };
+             const dateObj = DateUtils.parseQuery(valStr);
+             if (dateObj.type !== 'invalid') {
+               return { 
+                  type: 'date', subType: dateObj.type, 
+                  val: dateObj.val, nextVal: dateObj.nextVal, 
+                  hasTime: dateObj.hasTime 
+               };
+             }
+             return null;
+          };
+
+          // Handle Range ".."
+          const rangeRegex = /([^ ]+)\.\.([^ ]+)/g;
+          let rangeMatch;
+          while ((rangeMatch = rangeRegex.exec(logicQuery)) !== null) {
+            const v1 = processVal(rangeMatch[1]);
+            const v2 = processVal(rangeMatch[2]);
+            if (v1 && v2 && v1.type === v2.type) {
+               // Range Start (>= val)
+               comparisons.push({ ...v1, op: '>=' });
+               // Range End (<= val)
+               comparisons.push({ ...v2, op: '<=' });
+               if (v1.type === 'size') useSize = true;
+               if (v1.type === 'date') useDate = true;
+            }
+          }
+          logicQuery = logicQuery.replace(rangeRegex, ' ');
+
+          // Handle Operators
+          const opRegex = /([<>]=?)\s*([^<> ]+)/g;
+          let match;
+          while ((match = opRegex.exec(logicQuery)) !== null) {
+            const op = match[1];
+            const rawVal = match[2];
+            const p = processVal(rawVal);
+            if (p) {
+               comparisons.push({ ...p, op: op });
+               if (p.type === 'size') useSize = true;
+               if (p.type === 'date') useDate = true;
+            }
+          }
+        }
+        
+        const checkOp = (a, b, op) => {
+           if (op === '>') return a > b;
+           if (op === '>=') return a >= b;
+           if (op === '<') return a < b;
+           if (op === '<=') return a <= b;
+           return false;
+        };
+
+        const checkStr = (text, col, rowIdx) => {
+            if (!text) return;
+            const normText = TextUtils.normalize(text, ignoreDiacritics, isCaseInsensitive);
+            if (normText.includes(normalizedQuery)) {
+                let idx = normText.indexOf(normalizedQuery);
+                while(idx !== -1) {
+                    newResults.push({ rowIndex: rowIdx, colIndex: col, start: idx, len: query.length });
+                    idx = normText.indexOf(normalizedQuery, idx + 1);
+                }
+            }
+        };
+
+        for (let i = 0; i < rowData.length; i++) {
+          const r = rowData[i];
+          if (hideDepth > -1 && r.depth <= hideDepth) hideDepth = -1;
+          const isVisible = (hideDepth === -1);
+          r.isVisible = isVisible; 
+          
+          if (isVisible) {
+            if (doSizeDate) {
+               if (isLogicSearch) {
+                 let pass = true;
+                 for (let c of comparisons) {
+                   if (c.type === 'size') {
+                     if (!checkOp(r.val_size, c.val, c.op)) { pass = false; break; }
+                   } else if (c.type === 'date') {
+                     let rVal = r.val_date;
+                     let threshold = c.val;
+                     let operator = c.op;
+
+                     // Handle Time-Only queries
+                     if (c.subType === 'time') {
+                        rVal = DateUtils.getTimeOfDay(r.val_date);
+                     } 
+                     // Handle Date/Year queries (Broad units)
+                     else if (!c.hasTime) {
+                        if (c.op === '>' || c.op === '<=') {
+                           threshold = c.nextVal; 
+                           if (c.op === '>') operator = '>=';
+                           if (c.op === '<=') operator = '<';
+                        }
+                     }
+
+                     if (!checkOp(rVal, threshold, operator)) { pass = false; break; }
+                   }
+                 }
+                 if (pass && comparisons.length > 0) {
+                    const highlightCols = [];
+                    if (useSize) highlightCols.push(1);
+                    if (useDate) highlightCols.push(2);
+                    if (highlightCols.length > 0) {
+                        newResults.push({ rowIndex: i, isLogic: true, cols: highlightCols });
+                    }
+                 }
+               } else {
+                 checkStr(r.txt_size, 1, i);
+                 checkStr(r.txt_date, 2, i);
+               }
+            } else {
+              if (doName) checkStr(r.txt_name, 0, i);
+              if (doMime) checkStr(r.txt_mime, 3, i);
+              if (doOwner) checkStr(r.txt_owner, 4, i);
+            }
+
+            if (r.collapsed) hideDepth = r.depth;
+          }
+        }
+
+        searchResults = newResults;
+        
+        if (searchResults.length > 0) {
+            if (keepIndex && currentMatchIndex >= 0) {
+               if (currentMatchIndex >= searchResults.length) currentMatchIndex = 0;
+            } else {
+               currentMatchIndex = 0;
+            }
+            scrollToCurrentMatch();
+        } else {
+            currentMatchIndex = -1;
+        }
+
+        searchCounter.textContent = searchResults.length > 0 
+           ? (currentMatchIndex + 1) + "/" + searchResults.length 
+           : "0/0";
+
+        updateVirtualList();
+      };
+      
+      const tempContainer = document.createElement('div');
+      
+      function highlightRowHtml(htmlString, rowMatches, isGlobalActive) {
+        tempContainer.innerHTML = '<table><tbody>' + htmlString + '</tbody></table>';
+        const tr = tempContainer.firstChild.firstChild.firstChild; 
+        
+        const matchesByCol = {};
+        rowMatches.forEach(m => {
+            if (m.isLogic) {
+                m.cols.forEach(c => {
+                    if(!matchesByCol[c]) matchesByCol[c] = [];
+                    matchesByCol[c].push(m);
+                });
+            } else {
+                if(!matchesByCol[m.colIndex]) matchesByCol[m.colIndex] = [];
+                matchesByCol[m.colIndex].push(m);
+            }
+        });
+
+        Object.keys(matchesByCol).forEach(colIdx => {
+            const idx = parseInt(colIdx, 10);
+            const cell = tr.cells[idx];
+            if (!cell) return;
+            const targetNode = getTargetTextNode(cell, idx);
+            if (!targetNode) return;
+            
+            const fullText = targetNode.nodeValue;
+            
+            const isLogicMatch = matchesByCol[colIdx].some(m => m.isLogic);
+            if (isLogicMatch) {
+               const isActive = matchesByCol[colIdx].some(m => searchResults.indexOf(m) === currentMatchIndex);
+               const markClass = isActive ? 'search-hit search-hit-active' : 'search-hit';
+               const wrapper = document.createElement('span');
+               wrapper.innerHTML = `<mark class="${markClass}">${fullText}</mark>`;
+               targetNode.replaceWith(...wrapper.childNodes);
+            } else {
+               let resultHtml = "";
+               let lastPos = 0;
+               const sortedMatches = matchesByCol[colIdx].sort((a, b) => a.start - b.start);
+               sortedMatches.forEach(m => {
+                   if (m.isLogic) return;
+                   const isActive = (searchResults.indexOf(m) === currentMatchIndex);
+                   const markClass = isActive ? 'search-hit search-hit-active' : 'search-hit';
+                   resultHtml += fullText.substring(lastPos, m.start);
+                   resultHtml += `<mark class="${markClass}">${fullText.substr(m.start, m.len)}</mark>`;
+                   lastPos = m.start + m.len;
+               });
+               resultHtml += fullText.substring(lastPos);
+               const wrapper = document.createElement('span');
+               wrapper.innerHTML = resultHtml;
+               targetNode.replaceWith(...wrapper.childNodes);
+            }
+        });
+        return tr.outerHTML;
+      }
+
+      
+      function scrollToCurrentMatch() {
+         if (currentMatchIndex < 0 || currentMatchIndex >= searchResults.length) return;
+         const match = searchResults[currentMatchIndex];
+         
+         // 1. Expand the column first
+         adjustFirstColumnWidth(match.rowIndex);
+         
+         // Force a browser reflow to ensure the new width is applied before calculating scroll
+         // (Accessing offsetHeight triggers reflow)
+         const _reflow = scrollArea.offsetHeight; 
+
+         // 2. Vertical Scroll
+         let visibleIndex = 0;
+         let hideDepth = -1;
+         
+         for (let i = 0; i < match.rowIndex; i++) {
+             const r = rowData[i];
+             if (hideDepth > -1 && r.depth <= hideDepth) hideDepth = -1;
+             if (hideDepth === -1) {
+                 visibleIndex++;
+                 if (r.collapsed) hideDepth = r.depth;
+             }
+         }
+         
+         const rh = (clusterize && clusterize.options.item_height) ? clusterize.options.item_height : 28;
+         const containerHeight = scrollArea.clientHeight;
+         const targetTop = visibleIndex * rh;
+         const desiredScrollTop = Math.max(0, targetTop - (containerHeight / 2) + (rh / 2));
+         
+         // 3. Horizontal Scroll
+         let desiredScrollLeft = scrollArea.scrollLeft;  
+         let targetColIndex = match.colIndex;
+         if (match.isLogic && match.cols && match.cols.length > 0) {
+             targetColIndex = match.cols[0];
+         }
+         
+         const th = document.querySelector(`thead th:nth-child(${targetColIndex + 1})`);
+         if (th) {
+             const areaLeft = scrollArea.scrollLeft;
+             const areaWidth = scrollArea.clientWidth;
+             const areaRight = areaLeft + areaWidth;
+
+             const isNameCol = (targetColIndex === 0);
+
+             if (isNameCol) {
+                 // Calculate text position for the Name column
+                 const row = rowData[match.rowIndex];
+                 let textOffset = 0;
+                 if (match.start > 0 && match.len > 0) { 
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Try to grab the exact font from the tree class or fallback to body
+                    const treeStyle = document.querySelector('.tree');
+                    const compStyle = treeStyle ? window.getComputedStyle(treeStyle) : window.getComputedStyle(document.body);
+                    const fontSize = '14px'; // default fallback
+                    const fontFamily = compStyle.fontFamily || 'Arial, sans-serif';
+                    ctx.font = `${fontSize} ${fontFamily}`;
+                    
+                    const fullText = row.txt_name || '';
+                    const textBefore = fullText.substring(0, match.start);
+                    textOffset = ctx.measureText(textBefore).width;
+                 }
+                 
+                 // Approximate indentation: depth * 20px indent + 24px (icon+padding base)
+                 const indentPx = (row.depth * 20) + 24; 
+                 const matchX = indentPx + textOffset;
+                 
+                 // Scroll logic with margin
+                 const margin = 100;
+
+                 // If the match is off to the left
+                 if (matchX < areaLeft + margin) {
+                     desiredScrollLeft = Math.max(0, matchX - margin);
+                 } 
+                 // If the match is off to the right
+                 else if (matchX > areaRight - margin) {
+                     desiredScrollLeft = matchX - (areaWidth / 2);
+                 }
+             } else {
+                 // Standard column scrolling
+                 const thLeft = th.offsetLeft;
+                 const thWidth = th.offsetWidth;
+                 const thRight = thLeft + thWidth;
+
+                 if (thLeft < areaLeft) {
+                     desiredScrollLeft = thLeft;
+                 } else if (thRight > areaRight) {
+                     desiredScrollLeft = thRight - areaWidth;
+                 }
+             }
+         }
+         
+         scrollArea.scrollTo({ top: desiredScrollTop, left: desiredScrollLeft, behavior: 'auto' });
+    }
+        
+
+
+      
+      function navigateSearch(direction) {
+          if (searchResults.length === 0) return;
+          if (direction === 1) { // Next
+              currentMatchIndex++;
+              if (currentMatchIndex >= searchResults.length) {
+                  currentMatchIndex = 0;
+                  showToast("⟳ Wrapped to first result");
+              }
+          } else { // Prev
+              currentMatchIndex--;
+              if (currentMatchIndex < 0) {
+                  currentMatchIndex = searchResults.length - 1;
+                  showToast("⟲ Wrapped to last result");
+              }
+          }
+          searchCounter.textContent = (currentMatchIndex + 1) + "/" + searchResults.length;
+          scrollToCurrentMatch();
+          updateVirtualList();
+      }
+
+      searchNextBtn.addEventListener('click', () => navigateSearch(1));
+      searchPrevBtn.addEventListener('click', () => navigateSearch(-1));
+      
+      searchInput.addEventListener('input', () => {
+         if (searchDebounce) clearTimeout(searchDebounce);
+         searchDebounce = setTimeout(() => { performSearch(false); }, 150);
+      });
+
+      searchInput.addEventListener('keydown', function(e) {
+          if (e.key !== 'Enter') return;
+          if (!this.value || this.value.length < 2) return;
+          e.preventDefault();
+          if (searchResults.length === 0) performSearch(true);
+          if (e.shiftKey) {
+              navigateSearch(-1);
+          } else {
+              navigateSearch(1);
+          }
+      });
+
+      updateVirtualList = function() {
+        let hideDepth = -1;
+        const visibleHtmlArray = [];
+        const rowMatchMap = new Map();
+        if (searchResults.length > 0) {
+           searchResults.forEach(m => {
+               if (!rowMatchMap.has(m.rowIndex)) rowMatchMap.set(m.rowIndex, []);
+               rowMatchMap.get(m.rowIndex).push(m);
+           });
+        }
+        
+        for (let i = 0; i < rowData.length; i++) {
+          const r = rowData[i];
+          if (hideDepth > -1 && r.depth <= hideDepth) hideDepth = -1;
+          const isVisible = (hideDepth === -1);
+          r.isVisible = isVisible; 
+          if (isVisible) {
+            let html = allRowHtmlStrings[i]; 
+            if (r.isFolder && r.hasChildren) {
+              const newIcon = r.collapsed ? STATE_ICONS.collapsed : STATE_ICONS.expanded;
+              html = html.replace(/(<span class="icon-folder"[^>]*>)[^<]*(<\/span>)/, `$1${newIcon}$2`);
+            }
+            const newClass = (visibleHtmlArray.length % 2 === 0) ? 'row-odd' : 'row-even';
+            html = html.replace(/class="row-(odd|even)"/, `class="${newClass}"`);
+            
+            if (rowMatchMap.has(i)) {
+               html = highlightRowHtml(html, rowMatchMap.get(i), currentMatchIndex);
+            }
+            visibleHtmlArray.push(html);
+            if (r.collapsed) hideDepth = r.depth;
+          }
+        }
+        clusterize.update(visibleHtmlArray);
+      }
+      
+      function isRowVisible(row) { return row.isVisible; }
+
+      function updateHeaderIcons() {
+        if (!levelIconsShown || !headerCell) return;
+        const levelIconElements = headerCell.querySelectorAll('.level-icon');
+        if (!levelIconElements.length) return;
+        
+        const levelStates = [];
+        for (let i = 0; i <= maxFolderDepth; i++) {
+          const allFoldersAtLevel = rowData.filter(r => r.isFolder && r.hasChildren && r.depth === i);
+          if (allFoldersAtLevel.length === 0) {
+            levelStates[i] = 'expanded';
+            continue;
+          }
+          const totalDownCount = allFoldersAtLevel.filter(r => r.collapsed || !isRowVisible(r)).length;
+          if (totalDownCount === 0) levelStates[i] = 'expanded';
+          else if (totalDownCount === allFoldersAtLevel.length) levelStates[i] = 'collapsed';
+          else levelStates[i] = 'partial';
+        }
+        
+        let seenCollapsed = false;
+        for (let i = 0; i <= maxFolderDepth; i++) {
+          const el = levelIconElements[i];
+          if (!el) continue;
+          let currentState = levelStates[i];
+          if (seenCollapsed) currentState = 'collapsed';
+          el.textContent = STATE_ICONS[currentState];
+          el.title = STATE_TITLES[currentState](i);
+          if (currentState === 'collapsed') seenCollapsed = true;
+        }
+      }
+
+
+      function handleLevelIconClick(level, event) {
+        // 1. Detect modifier key
+        const isCtrl = event && (event.ctrlKey || event.metaKey);
+
+        // 2. Determine current state
+        const foldersAtLevel = rowData.filter(r => r.isFolder && r.hasChildren && r.depth === level);
+        const collapsedCount = foldersAtLevel.filter(r => r.collapsed || !isRowVisible(r)).length;
+        
+        let currentState = 'expanded';
+        if (foldersAtLevel.length > 0) {
+          if (collapsedCount === foldersAtLevel.length) currentState = 'collapsed';
+          else if (collapsedCount > 0) currentState = 'partial';
+        }
+        
+        // 3. Determine Action
+        // Default Rule: Collapse if 'expanded' or 'partial', Expand if 'collapsed'
+        let shouldCollapse = (currentState === 'expanded' || currentState === 'partial');
+
+        // NEW RULE: If Partial AND Ctrl+Click -> Force Expand
+        if (currentState === 'partial' && isCtrl) {
+            shouldCollapse = false;
+        }
+        
+        // 4. Execute Bulk Logic (Original Behavior)
+        rowData.forEach(r => {
+          if (r.isFolder && r.hasChildren) {
+            if (shouldCollapse) {
+              // Collapse logic: Collapse this level and everything deeper
+              if (r.depth >= level) r.collapsed = true;
+            } else {
+              // Expand logic: Expand all up to this level
+              // (Folders <= level are expanded; deeper ones become collapsed)
+              r.collapsed = r.depth > level;
+            }
+          }
+        });
+
+        // 5. Refresh UI
+        if (isSearchOpen && searchInput.value.length >= 2) performSearch(true); 
+        else updateVirtualList();
+        
+        updateHeaderIcons();
+        saveCollapseState();
+        clearRowSelection();
+      }
+
+
+      function createLevelIconsElement() {
+        const mainContainer = document.createElement('div');
+        mainContainer.className = 'level-header-container header-fade';
+        const iconsContainer = document.createElement('span');
+        iconsContainer.className = 'level-icons';
+        for (let i = 0; i <= maxFolderDepth; i++) {
+          const el = document.createElement('span');
+          el.className = 'level-icon';
+          el.dataset.level = i;
+          // Pass the event 'e' to the handler
+          el.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const lvl = parseInt(this.dataset.level, 10);
+            if (!isNaN(lvl)) handleLevelIconClick(lvl, e);
+          });
+          iconsContainer.appendChild(el);
+        }
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'level-toggle-btn';
+        closeBtn.textContent = '✖';
+        closeBtn.title = 'Hide level selectors';
+        closeBtn.addEventListener('click', function(e) { e.stopPropagation(); hideLevelIcons(); });
+        mainContainer.appendChild(iconsContainer);
+        mainContainer.appendChild(closeBtn);
+        return mainContainer;
+      }
+
+
+
+      document.getElementById('contentArea').addEventListener('click', function(e) {
+        let target = e.target;
+        while (target && target !== this && !target.classList.contains('icon-folder')) {
+          target = target.parentElement;
+        }
+        if (!target || !target.classList.contains('icon-folder')) return;
+        const index = parseInt(target.getAttribute('data-index'), 10);
+        if (isNaN(index) || !rowData[index]) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const r = rowData[index];
+        if (!r.isFolder || !r.hasChildren) return;
+        const isModifier = e.ctrlKey || e.metaKey;
+        
+        if (isModifier) {
+          const newCollapsed = !r.collapsed;
+          rowData.forEach(other => {
+            if (other.isFolder && other.depth === r.depth && other.hasChildren) {
+              other.collapsed = newCollapsed;
+            }
+          });
+        } else {
+          r.collapsed = !r.collapsed;
+        }
+
+        if (isSearchOpen && searchInput.value.length >= 2) performSearch(true); 
+        else updateVirtualList();
+        updateHeaderIcons();
+        saveCollapseState();
+        clearRowSelection();
+      });
+
+      showLevelIcons = function() {
+        if (!headerCell || maxFolderDepth < 0) return;
+        const prevH = headerCell.getBoundingClientRect().height;
+        headerCell.style.height = prevH + 'px';
+        headerCell.style.overflow = 'hidden';
+        headerCell.style.transition = 'height 260ms ease, opacity 220ms ease';
+        headerCell.style.opacity = '0';
+        
+        SafeStorage.set(LEVEL_KEY, 'show');
+
+        setTimeout(function() {
+          headerCell.innerHTML = '';
+          const newHeaderContent = createLevelIconsElement();
+          newHeaderContent.style.opacity = '0';
+          headerCell.appendChild(newHeaderContent);
+          levelIconsShown = true;
+          setToggleState('btnToggleLevel', false);
+          updateHeaderIcons();
+          requestAnimationFrame(function() {
+            const targetH = newHeaderContent.getBoundingClientRect().height;
+            newHeaderContent.style.transition = 'opacity 220ms ease';
+            newHeaderContent.style.opacity = '1';
+            headerCell.style.opacity = '1';
+            headerCell.style.height = targetH + 'px';
+          });
+          setTimeout(function() {
+            headerCell.style.height = '';
+            headerCell.style.overflow = '';
+            headerCell.style.transition = '';
+          }, 300);
+        }, 40);
+      }
+
+      function hideLevelIcons() {
+        if (!headerCell) return;
+        const prevH = headerCell.getBoundingClientRect().height;
+        headerCell.style.height = prevH + 'px';
+        headerCell.style.overflow = 'hidden';
+        headerCell.style.transition = 'height 260ms ease, opacity 220ms ease';
+        headerCell.style.opacity = '0';
+        
+        SafeStorage.set(LEVEL_KEY, 'hide');
+
+        setTimeout(function() {
+          headerCell.innerHTML = originalHeaderHTML;
+          levelIconsShown = false;
+          setToggleState('btnToggleLevel', true);
+          const treeHeaderText = document.getElementById('treeHeaderText');
+          if (treeHeaderText) treeHeaderText.title = 'Click to show/hide level selectors';
+          requestAnimationFrame(function() {
+            const targetH = headerCell.getBoundingClientRect().height;
+            headerCell.style.opacity = '1';
+            headerCell.style.height = targetH + 'px';
+          });
+          setTimeout(function() {
+            headerCell.style.height = '';
+            headerCell.style.overflow = '';
+            headerCell.style.transition = '';
+          }, 300);
+        }, 40);
+      }
+      
+      const treeHeaderText = document.getElementById('treeHeaderText');
+      if (treeHeaderText) treeHeaderText.title = 'Click to show/hide level selectors';
+      
+      document.getElementById('btnToggleLevel').addEventListener('click', () => {
+          if (levelIconsShown) hideLevelIcons();
+          else showLevelIcons();
+      });
+
+      // --- Initialize Clusterize ---
+      clusterize = new Clusterize({
+        rows: allRowHtmlStrings, 
+        scrollId: 'scrollArea',
+        contentId: 'contentArea',
+        tag: 'tr',
+        rows_in_block: 50, 
+        blocks_in_cluster: 4, 
+        keep_parity: false, 
+        callbacks: {
+          clusterWillChange: function() { requestAnimationFrame(handleScroll); }
+        }
+      });
+      
+      if (SafeStorage.get(LEVEL_KEY) === 'show' || anyFolderCollapsed) {
+         showLevelIcons();
+      }
+
+      updateVirtualList();
+      document.body.classList.add('ready');
+    });
+
+
+/* --- Row Selection & Breadcrumbs --- */
+    let selectedRow = null;
+    const topbarTitle = document.getElementById('topbarTitle');
+    
+    // Safely grab the root folder name from the DOM attribute
+    const rootFolderName = topbarTitle ? topbarTitle.getAttribute('data-rootname') : "";
+    
+    // Define the default states
+    const defaultTitleHtml = `File tree for: <span style="color: var(--fg-size-folder);">${rootFolderName}</span>`;
+    const defaultTitleText = `File tree for: ${rootFolderName}`;
+
+    let currentBreadcrumbIndex = null;
+    let breadcrumbResizeTimer = null;
+
+    function renderBreadcrumbs() {
+      if (!topbarTitle) return;
+      
+      // If no row is selected, revert to default title
+      if (currentBreadcrumbIndex === null || currentBreadcrumbIndex === undefined || !window.rowData) {
+        topbarTitle.innerHTML = defaultTitleHtml;
+        topbarTitle.title = defaultTitleText;
+        return;
+      }
+
+      const targetRow = window.rowData[currentBreadcrumbIndex];
+      if (!targetRow) return;
+
+      // Store objects to keep track of whether it's a folder or file for coloring
+      let breadcrumbs = [{ name: targetRow.txt_name, isFolder: targetRow.isFolder }];
+      let currentDepth = targetRow.depth;
+
+      // Traverse backwards to find hierarchical parents
+      for (let i = currentBreadcrumbIndex - 1; i >= 0; i--) {
+        const prevRow = window.rowData[i];
+        
+        // A parent is simply the closest previous row with a strictly smaller depth
+        if (prevRow.depth < currentDepth) {
+          breadcrumbs.unshift({ name: prevRow.txt_name, isFolder: prevRow.isFolder });
+          currentDepth = prevRow.depth;
+        }
+        
+        // Break early if we hit the root level
+        if (currentDepth === 0) break;
+      }
+
+      const separator = ' <span style="opacity: 0.6;">⇾</span> ';
+      const formatCrumb = (item) => {
+        const colorVar = item.isFolder ? 'var(--fg-size-folder)' : 'var(--fg-size-file)';
+        return `<span style="color: ${colorVar};">${item.name}</span>`;
+      };
+
+      // Update the tooltip title with full plain text so it displays nicely on hover
+      topbarTitle.title = breadcrumbs.map(b => b.name).join(' ⇾ '); 
+
+      // Apply initial full HTML
+      topbarTitle.innerHTML = breadcrumbs.map(formatCrumb).join(separator);
+      
+      // Truncate from the beginning if it overflows the CSS 2-line clamp restriction.
+      // scrollHeight > clientHeight tells us if the text is overflowing its visible bounds.
+      while (topbarTitle.scrollHeight > topbarTitle.clientHeight + 2 && breadcrumbs.length > 1) {
+        breadcrumbs.shift(); // Remove the first element (leftmost root/parent)
+        topbarTitle.innerHTML = `<span style="opacity: 0.8;">...</span> ${separator} ` + breadcrumbs.map(formatCrumb).join(separator);
+      }
+    }
+
+    function updateBreadcrumbs(rowIndex) {
+      currentBreadcrumbIndex = rowIndex;
+      renderBreadcrumbs();
+    }
+
+    // Re-calculate breadcrumb truncation on window resize
+    window.addEventListener('resize', () => {
+      if (currentBreadcrumbIndex !== null) {
+        if (breadcrumbResizeTimer) clearTimeout(breadcrumbResizeTimer);
+        breadcrumbResizeTimer = setTimeout(() => {
+          renderBreadcrumbs();
+        }, 100);
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      const row = e.target.closest("tbody tr");
+      if (!row) return;
+
+      if (row === selectedRow) {
+        // Deselect
+        row.classList.remove("row-selected");
+        selectedRow = null;
+        updateBreadcrumbs(null);
+        return;
+      }
+
+      if (selectedRow) {
+        selectedRow.classList.remove("row-selected");
+      }
+
+      // Select
+      row.classList.add("row-selected");
+      selectedRow = row;
+
+      // Trigger breadcrumb update
+      const rowIndex = parseInt(row.getAttribute("data-rowindex"), 10);
+      if (!isNaN(rowIndex)) {
+        updateBreadcrumbs(rowIndex);
+      }
+    });
+
+    function clearRowSelection() {
+      if (selectedRow) {
+        selectedRow.classList.remove("row-selected");
+        selectedRow = null;
+        updateBreadcrumbs(null);
+      }
+    }
+
+  </script>
+</body>
+</html>

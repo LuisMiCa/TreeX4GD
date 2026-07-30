@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TreeX4GD - Help & Documentation</title>
+    
+    <meta name="target-script-tier" content="1.0">  <!-- Script tier that this document applies to (patches are irrelevant) -->
+    <meta name="help-revision" content="0">         <!-- Help document revision for the indicated script tier -->
+
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-body: #ffffff;
+            --text-body: #333333;
+            --bg-sidebar: #f8f9fa;
+            --bg-sidebar-header: #e2e6ea;
+            --text-sidebar: #222222;
+            --border-color: #e9ecef;
+            --accent-color: #0066cc;
+            --accent-hover: #004499;
+            --code-bg: #f1f3f5;
+            --code-text: #c92a2a;
+            --note-bg: #fff9db;
+            --note-border: #fab005;
+            --note-text: #5c4613;
+            --shadow: rgba(0,0,0,0.08);
+            --toc-hover: #e2e6ea;
+            --toc-active: #e7f5ff;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-body: #121212;
+            --text-body: #e0e0e0;
+            --bg-sidebar: #1e1e1e;
+            --bg-sidebar-header: #2a2a2a;
+            --text-sidebar: #eeeeee;
+            --border-color: #333333;
+            --accent-color: #4dabf7;
+            --accent-hover: #74c0fc;
+            --code-bg: #2c2c2c;
+            --code-text: #ff8787;
+            --note-bg: #1c1a15;
+            --note-border: #6e5f3a;
+            --note-text: #9f935f;
+            --shadow: rgba(0,0,0,0.5);
+            --toc-hover: #333333;
+            --toc-active: #1a2733;
+            
+            /* Dark Mode Scrollbars */
+            scrollbar-color: #555555 var(--bg-body);
+            scrollbar-width: thin;
+        }
+
+        /* Webkit specific Dark Mode Scrollbars */
+        [data-theme="dark"] ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-track {
+            background: var(--bg-body);
+        }
+        [data-theme="dark"] #sidebar ::-webkit-scrollbar-track {
+            background: var(--bg-sidebar); 
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #555555;
+            border-radius: 5px;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #777777;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-body);
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- SIDEBAR STRUCTURE --- */
+        #sidebar {
+            height: 100vh;
+            width: 30px; 
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-x: hidden;
+            white-space: nowrap;
+            box-shadow: 2px 0 10px var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar.expanded {
+            width: 280px; 
+        }
+
+        /* --- SIDEBAR RESIZER --- */
+        #sidebar-resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 6px;
+            height: 100%;
+            cursor: ew-resize;
+            background-color: transparent;
+            z-index: 1001;
+            transition: background-color 0.2s;
+        }
+        
+        #sidebar-resizer:hover, 
+        #sidebar-resizer.is-resizing {
+            background-color: var(--accent-color);
+        }
+
+        #sidebar:not(.expanded) #sidebar-resizer {
+            display: none;
+        }
+
+        .no-transition {
+            transition: none !important;
+        }
+        .no-select {
+            user-select: none;
+        }
+
+        /* --- SIDEBAR HEADER & CONTROLS --- */
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 60px;
+            padding: 0;
+            background-color: var(--bg-sidebar-header);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            transition: padding 0.3s;
+            overflow: hidden; 
+        }
+
+        #sidebar.expanded .sidebar-header {
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            min-width: 30px; 
+            height: 100%;
+            padding: 0;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; 
+        }
+        
+        .toggle-btn:hover {
+            color: var(--accent-hover);
+        }
+
+        /* --- THEME TOGGLE SQUARE SLIDER --- */
+        .theme-toggle-btn {
+            background-color: var(--border-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            padding: 0;
+            border-radius: 4px; /* Square edges */
+            opacity: 0;
+            transition: opacity 0.2s, background-color 0.3s;
+            pointer-events: none;
+            display: none; 
+            width: 60px;
+            height: 30px;
+            position: relative;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        #sidebar.expanded .theme-toggle-btn {
+            opacity: 1;
+            pointer-events: auto;
+            display: block; 
+        }
+
+        .theme-toggle-track {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 0 6px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 2; /* Icons float above the slider block */
+        }
+
+        .icon-sun, .icon-moon {
+            font-size: 14px;
+            line-height: 1;
+            transition: opacity 0.3s, filter 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+        }
+
+        .icon-sun { opacity: 1; }
+        .icon-moon { opacity: 0.3; filter: grayscale(100%); }
+
+        [data-theme="dark"] .icon-sun { opacity: 0.3; filter: grayscale(100%); }
+        [data-theme="dark"] .icon-moon { opacity: 1; filter: grayscale(0%); }
+
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 26px;
+            height: 24px;
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+            box-shadow: 0 1px 3px var(--shadow);
+            box-sizing: border-box;
+            z-index: 1; /* Sits underneath the icons to highlight them */
+        }
+
+        /* Slide to the right in dark mode */
+        [data-theme="dark"] .theme-toggle-thumb {
+            transform: translateX(28px); 
+        }
+
+        /* --- NESTED TABLE OF CONTENTS --- */
+        #toc-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            overscroll-behavior: contain; 
+            opacity: 0;
+            transition: opacity 0.2s ease-in;
+            padding: 20px 0;
+            pointer-events: none;
+            white-space: normal;
+        }
+
+        #sidebar.expanded #toc-container {
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.3s ease-out 0.1s;
+        }
+
+        #toc {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #toc li {
+            margin: 0;
+        }
+
+        #toc > li > a {
+            display: block;
+            padding: 10px 15px;
+            color: var(--text-sidebar);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+            white-space: normal;
+            overflow-wrap: break-word;
+            line-height: 1.35;
+        }
+
+        #toc > li > a:hover {
+            background-color: var(--toc-hover);
+            color: var(--accent-color);
+        }
+        
+        #toc a.active {
+            background-color: var(--toc-active);
+            color: var(--accent-color);
+            border-left-color: var(--accent-color);
+        }
+
+        #toc ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background-color: rgba(0,0,0,0.02);
+            display: none;
+        }
+        
+        #toc li.has-active-child > ul {
+            display: block;
+        }
+
+        #toc ul li a {
+            display: block;
+            padding: 8px 15px 8px 30px;
+            color: var(--text-sidebar);
+            text-decoration: none;
+            font-size: 13px;
+            opacity: 0.8;
+            border-left: 4px solid transparent;
+            transition: opacity 0.2s, color 0.2s;
+            white-space: normal;
+            overflow-wrap: break-word;
+            line-height: 1.35;
+        }
+
+        #toc ul li a:hover {
+            color: var(--accent-color);
+            opacity: 1;
+            background-color: var(--toc-hover);
+        }
+
+        #toc ul li a.active {
+            color: var(--accent-color);
+            opacity: 1;
+            background-color: var(--toc-hover);
+            border-left-color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        /* --- MAIN CONTENT LAYOUT --- */
+        #main-content {
+            margin-left: 30px; 
+            padding: 40px 60px;
+            padding-bottom: 50vh; 
+            max-width: 950px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #sidebar.expanded + #main-content {
+            margin-left: 280px; 
+        }
+
+        /* --- TYPOGRAPHY & ELEMENTS --- */
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        section {
+            scroll-margin-top: 20px;
+        }
+
+        h2 {
+            color: var(--text-body);
+            font-size: 1.8em;
+            margin-top: 60px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: var(--accent-color);
+            font-size: 1.3em;
+            margin-top: 35px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            max-width: 850px;
+        }
+        
+        #main-content a,
+        #main-content a:visited {
+            color: var(--accent-color);
+        }
+
+        #main-content a:hover {
+            color: var(--accent-hover);
+        }
+
+        code {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: 0.95em;
+        }
+
+        .note {
+            background-color: var(--note-bg);
+            color: var(--note-text);
+            padding: 15px 20px;
+            border-left: 5px solid var(--note-border);
+            border-radius: 4px;
+            margin: 25px 0;
+            font-size: 0.95em;
+        }
+        
+        .warning {
+            background-color: #fff5f5;
+            color: #c92a2a;
+            border-left: 5px solid #ff8787;
+        }
+        
+        [data-theme="dark"] .warning {
+            background-color: #211717;
+            color: #d6a7a7;
+            border-left: 5px solid #7a4a4a;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 20px;
+            max-width: 850px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .feature-list li {
+            list-style-type: none;
+            position: relative;
+            padding-left: 25px;
+        }
+        .feature-list li::before {
+            content: "•";
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.5em;
+            position: absolute;
+            left: 0;
+            top: -5px;
+            line-height: 1;
+        }
+        
+        .kbd {
+            display: inline-block;
+            padding: 3px 5px;
+            font-size: 0.8em;
+            line-height: 1;
+            color: var(--text-body);
+            vertical-align: middle;
+            background-color: var(--bg-body);
+            border: solid 1px var(--border-color);
+            border-bottom-color: #cccccc;
+            border-radius: 3px;
+            box-shadow: inset 0 -1px 0 #bbb;
+        }
+    </style>
+    
+</head>
+<body>
+
+    <div id="sidebar">
+        <div id="sidebar-resizer"></div>
+        <div class="sidebar-header">
+            <button id="sidebarToggle" class="toggle-btn" onclick="toggleSidebar()" title="Expand/Collapse Menu">☰</button>
+            
+            <button class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Mode">
+                <div class="theme-toggle-track">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </div>
+                <div class="theme-toggle-thumb"></div>
+            </button>
+            
+        </div>
+        <div id="toc-container">
+            <ul id="toc">
+            </ul>
+        </div>
+    </div>
+
+    <div id="main-content">
+        
+        <header>
+            <h1>TreeX4GD <span id="header-version" style="font-size:0.5em; color:var(--text-body); font-weight:normal; vertical-align:middle;"></span></h1>
+            <p style="font-size: 1.2em; color: var(--accent-color);">File Tree Exporter for <strong>Google Drive™</strong></p>
+        </header>
+
+        <section id="overview">
+            <h2>1. OVERVIEW</h2>
+            <p>TreeX4GD is a lightweight, open-source desktop tool designed to map your Google Drive into clean, easy-to-read reports. It complements the Google Drive web interface by providing capabilities it does not natively offer, such as hierarchical file trees and recursive folder size calculations.</p>
+            <p>With a single scan, you can generate an interactive HTML tree, a comprehensive Excel spreadsheet, and/or a JSON data backup. These formats simplify searching, visualizing, and navigating even the most complex directory structures, allowing you to archive all metadata for offline review and analysis.</p>
+            <img src="TreeX4GD-help-images/TreeX4GD-and-HTML.png" alt="TreeX4GD and an HTML export" style="max-width: 100%; height: auto; margin: 15px 0; border: 1px solid var(--border-color); border-radius: 6px;">
+        </section>
+
+        <section id="key-features">
+            <h2>2. KEY FEATURES</h2>
+            <ul class="feature-list">
+                <li><strong>Metadata-Only:</strong> TreeX4GD never downloads your files. It connects securely to the Google Drive API using read-only metadata permissions, retrieving only the information needed to map your Drive without accessing your file contents.</li>
+                <li><strong>Complete Recursive Drive Mapping:</strong> Generates a full hierarchical tree of any Google Drive folder, preserving the exact folder structure, nesting levels, and relationships between every file and directory.</li>
+                <li><strong>Folder Size Calculation:</strong> Calculates the true size of every folder by recursively summing the sizes of all descendant files — a capability not natively provided by Google Drive.</li>
+                <li><strong>Multiple Export Formats:</strong> Allows each scan to be exported as:
+                    <ul>
+                        <li><strong>Interactive HTML</strong> for browsing, searching, expandable folder navigation, and direct Google Drive links.</li>
+                        <li><strong>Excel (.xlsx)</strong> for analysis, filtering, and reporting.</li>
+                        <li><strong>Hierarchical JSON</strong> for backup, automation, and offline re-importing to generate new HTML and Excel reports without rescanning Google Drive or consuming additional API quota.</li>
+                        <li><strong>UTF-8 Log Files</strong> for diagnostics and auditing.</li>
+                    </ul>
+                </li>
+                <li><strong>Comprehensive Metadata Collection:</strong> Captures extensive technical information including file sizes, owners, creation and modification dates, MIME types, version numbers, MD5 hashes (where available), shared status, hierarchy depth, parent relationships, and unique Google Drive IDs.</li>
+                <li><strong>Natural Sorting:</strong> Correctly sorts mixed text and numbers (e.g. <em>File 2</em> before <em>File 10</em>) and recognizes month names in multiple languages for intuitive ordering.</li>
+                <li><strong>Smart URL Parsing:</strong> Accepts either a Folder ID or a complete Google Drive URL, automatically extracting the required identifier regardless of additional URL parameters.</li>
+                <li><strong>Shared Drives Support:</strong> Works seamlessly with both personal <strong>My Drive</strong> folders and <strong>Shared Drives</strong> without requiring different workflows or additional configuration.</li>
+                <li><strong>Responsive Background Processing:</strong> Long-running scans execute on background threads, keeping the interface responsive while providing real-time progress logging, plus Pause, Resume, and Stop controls.</li>
+                <li><strong>Efficient API Usage:</strong> Uses request batching, rate limiting, and automatic exponential backoff to minimize API calls, reduce quota consumption, and gracefully recover from temporary Google API limits.</li>
+                <li><strong>Cross-Platform Desktop Application:</strong> Runs on Windows, macOS, and Linux, with platform-specific launchers that automatically create a virtual environment, install dependencies, and start the application.</li>
+            </ul>
+        </section>
+
+        <section id="technical-architecture">
+            <h2>3. TECHNICAL ARCHITECTURE & PERFORMANCE</h2>
+            <ul class="feature-list">
+                <li><strong>Main Script:</strong> The core application is a monolithic Python 3 script utilizing the standard <code>tkinter</code> library for its graphical interface. It employs an event-driven architecture with a strict separation of concerns between the UI and background tasks.</li>
+                <li><strong>Performance:</strong> To ensure the interface remains smooth and responsive during high-volume scans, all blocking network operations and file parsing run on background daemon threads. This prevents the application from "freezing" while data is being fetched.</li>
+                <li><strong>Rate Limiting:</strong> The app features a built-in API throttling technique, with exponential backoff and strategic sleep intervals. Also, by requesting large batches, it minimizes the total number of queries, protecting your daily quota and preventing Google API bans.</li>
+                <li><strong>Memory & Scalability:</strong> Data is stored in-memory using lightweight Python <code>dataclasses</code>. The application can comfortably handle hundreds of thousands of files on modern systems, though extremely massive drives (millions of files) are constrained by available local RAM.</li>
+            </ul>
+        </section>
+
+        <section id="setup">
+            <h2>4. SETUP & INSTALLATION</h2>
+
+            <h3>Step 1: Install Python</h3>
+            <p>TreeX4GD requires Python 3.11 or newer.</p>
+            <ul>
+                <li><strong>Windows & macOS:</strong> Download and install the latest Python version from the <a href="https://www.python.org/downloads/" target="_blank">official Python website</a>. On Windows, ensure you check the option to add Python to your system PATH during installation.</li>
+                <li><strong>Linux:</strong> Most Linux distributions come with Python pre-installed. The launcher script (<code>run_in_linux.sh</code>) will verify this, and if you are on a Debian/Ubuntu-based system, it will also attempt to automatically install missing core modules (like <code>python3-venv</code> and <code>python3-tk</code>). If you are on a different distribution, or prefer to handle it yourself, use your system's package manager (e.g., <code>sudo dnf install python3 python3-tkinter</code> for Fedora/RHEL, or <code>sudo apt install python3 python3-venv python3-tk</code> for Debian/Ubuntu).</li>
+            </ul>
+
+            <h3>Step 2: Download & Extract</h3>
+            <ol>
+                <li>Go to the <a href="https://github.com/LuisMiCa/TreeX4GD/releases" target="_blank">GitHub Releases page</a>.</li>
+                <li>Download the appropriate archive for your operating system:
+                    <ul>
+                        <li><strong>Windows:</strong> Download the <code>.zip</code> file.</li>
+                        <li><strong>Linux / macOS:</strong> Download the <code>.tar.gz</code> file (this format preserves the necessary script execution flags).</li>
+                    </ul>
+                </li>
+                <li>Extract the downloaded archive to a permanent location on your local machine.</li>
+            </ol>
+
+            <h3>Step 3: First Launch (Automated Setup)</h3>
+            <p>You do not need to manually configure Python virtual environments or hunt for dependencies. TreeX4GD includes dedicated launchers that handle the technical setup for you on the very first run.</p>
+            <p>Navigate into the <code>script/</code> subfolder and execute the script corresponding to your operating system:</p>
+            <ul>
+                <li><strong>Windows:</strong> Double-click <code>run_in_windows.bat</code></li>
+                <li><strong>macOS:</strong> Double-click <code>run_in_macOS.command</code></li>
+                <li><strong>Linux:</strong> Double-click <code>run_in_linux.sh</code>. If your desktop environment prompts you, always select <strong>"Run in Terminal"</strong> (do not select "Run", as it will hide the installation progress). Alternatively, execute it directly from your terminal.</li>
+            </ul>
+
+            <div class="note">
+                <strong>Note on First Launch:</strong> The initial setup will take a few moments while it automatically verifies your Python installation, builds an isolated virtual environment (venv), and downloads the required packages listed in <code>requirements.txt</code>. Once this one-time process is complete, all subsequent launches will be significantly faster.
+            </div>
+
+            <div class="note">
+                <strong>Note for macOS:</strong> Because this project is distributed as source code rather than a signed application, on some macOS systems, the Gatekeeper may prevent the launcher from running. In many cases, you can bypass this by Control-clicking (or Right-clicking) <code>run_in_macOS.command</code> and selecting <strong>Open</strong>. If that doesn't work, open a Terminal, navigate to the extracted project folder, and run:
+                <pre><code>xattr -dr com.apple.quarantine .</code></pre>
+                This removes the quarantine attribute from all the extracted files. Afterwards, enter the <code>script/</code> folder and double-click <code>run_in_macOS.command</code> again (or run it from the terminal).
+            </div>
+
+            <h3>Step 4: Get Google Project Credentials</h3>
+            <p>TreeX4GD requires you to provide your own Google OAuth 2.0 application credentials file (<code>.json</code>).</p>
+            <img src="TreeX4GD-help-images/Google-Cloud-Console-client-ID.gif" alt="Creating OAuth client ID" style="max-width: 100%; height: auto; margin: 15px 0; border: 1px solid var(--border-color); border-radius: 6px;">
+
+            <h4>Why the "Bring Your Own Credentials" Requirement?</h4>
+            <p>I have intentionally chosen not to bundle "pre-authorized" project credentials. This is a deliberate design choice based on:</p>
+            <ol>
+                <li><strong>Quota Independence (The "Bad Neighbor" Effect):</strong> The Google Drive API has strict rate limits per project. If a single set of project credentials were used for everyone, one user running massive scans — or modifying the code in a way that inadvertently spikes API calls — could exhaust the daily quota for the entire user base. Using your own credentials gives you a dedicated quota, ensuring your app's performance is never affected by others.</li>
+                <li><strong>Inability to Securely Hide Credentials:</strong> In a local desktop application, bundled credentials can never be truly hidden. They can be easily extracted by a malicious actor and used to abuse the Google API. This would lead to a "Project Ban" from Google, effectively breaking the app for every legitimate user.</li>
+                <li><strong>Bypassing Verification and Testing Limits:</strong> If I provided bundled credentials, the app would be initially placed in Google's "Testing" mode. This limits the app to 100 users, and I would have to manually whitelist the email address of everyone who wanted to test it. Removing this limit requires a formal Google App Verification — a complex, "black box" process designed for commercial SaaS software (requiring demo videos, a privacy policy hosted on a verified domain, and potential security audits). Since this is a hobby project, I am not willing to maintain that overhead. The "bring your own credentials" approach allows you to effortlessly self-verify for your own personal use.</li>
+            </ol>
+
+            <h4 id="configuring-google-cloud-project">Configuring Google Cloud Project and Getting Credentials</h4>
+            <ol>
+                <li><strong>Open:</strong> <a href="https://console.cloud.google.com/" target="_blank">https://console.cloud.google.com/</a></li>
+                <li><strong>Create a new project:</strong>
+                    <ul>
+                        <li><strong>2.1.</strong> Open the <strong>'Project Picker'</strong> (in the top bar or <span class="kbd">Ctrl</span> + <span class="kbd">O</span>).</li>
+                        <li><strong>2.2.</strong> Click <strong>'New Project'</strong>.</li>
+                        <li><strong>2.3.</strong> Write a name for the project. For example: <code>TreeX4GD</code>.</li>
+                        <li><strong>2.4.</strong> Click <strong>'Create'</strong>.</li>
+                    </ul>
+                </li>
+                <li><strong>Verify Project:</strong> If you have other projects, make sure you're working on the right one (check the project picker).</li>
+                <li><strong>Activate Google Drive API:</strong>
+                    <ul>
+                        <li><strong>4.1.</strong> Open the <strong>'Navigation Menu'</strong> (top-left button).</li>
+                        <li><strong>4.2.</strong> Navigate to <strong>'APIs & Services'</strong> --> <strong>'Library'</strong>.</li>
+                        <li><strong>4.3.</strong> Search for <strong>"Google Drive API"</strong>, click on it, and then click <strong>'Enable'</strong>.</li>
+                    </ul>
+                </li>
+                <li><strong>Create Credentials:</strong>
+                    <ul>
+                        <li><strong>5.1.</strong> Go to <strong>'Navigation Menu'</strong> --> <strong>'APIs & Services'</strong> --> <strong>'Credentials'</strong>.</li>
+                        <li><strong>5.2.</strong> Click <strong>'+ Create Credentials'</strong> and pick <strong>'OAuth Client ID'</strong>.</li>
+                        <li><strong>5.3.</strong> If not already configured, click <strong>'Configure consent screen'</strong>; otherwise, go to step <strong>5.4</strong>.
+                            <ul>
+                                <li><strong>5.3.1.</strong> Click <strong>'Get started'</strong>.</li>
+                                <li><strong>5.3.2.</strong> Write the name of the app: <code>TreeX4GD - File Tree Exporter for Google Drive</code>.</li>
+                                <li><strong>5.3.3.</strong> Select the user support email address (your email) and click <strong>'Next'</strong>.</li>
+                                <li><strong>5.3.4.</strong> Select the <strong>'Audience'</strong>: If your account is within a Google Workspace, you might be able to use 'Internal' audience; otherwise, pick 'External' and click <strong>'Next'</strong>.</li>
+                            </ul>
+                            <div class="note">
+                                💡 <strong>Tip on Audience Selection:</strong><br>
+                                * <strong>Internal (Workspace only):</strong> Highly recommended if available. It bypasses "Unverified App" warnings, allows coworkers to log in <em>without</em> you having to manually whitelist their email addresses, and has no cap on the number of users.<br>
+                                * <strong>External (Standard <code>@gmail.com</code>):</strong> The app remains in "Testing mode," meaning you must manually add allowed emails to the <strong>Test Users</strong> list (Step 7) and there is a strict user limit (max 100).<br><br>
+                                <strong>Note:</strong> Either way, any user using your configuration will need a copy of your <code>credentials.json</code> file to launch the app (think of it as a shared <strong>App ID card</strong>, not an account access key).
+                            </div>
+                            <ul>
+                                <li><strong>5.3.5.</strong> Enter your email in the <strong>'Contact Information'</strong> and click <strong>'Next'</strong>.</li>
+                                <li><strong>5.3.6.</strong> Agree to the policy and click <strong>'Create'</strong>.</li>
+                                <li><strong>5.3.7.</strong> Return to <strong>'APIs & Services'</strong> --> <strong>'Credentials'</strong> --> <strong>'+ Create Credentials'</strong> --> <strong>'OAuth Client ID'</strong>.</li>
+                            </ul>
+                        </li>
+                        <li><strong>5.4.</strong> Select Application Type: <strong>'Desktop App'</strong>.</li>
+                        <li><strong>5.5.</strong> Pick a name for the application (for example, <code>TreeX4GD App</code>) and click <strong>'Create'</strong>.</li>
+                        <li><strong>5.6.</strong> Download the JSON file (save it to a secure location on your computer) and click <strong>'OK'</strong>.</li>
+                    </ul>
+                </li>
+                <li><strong>Add Scopes (Data Access):</strong>
+                    <ul>
+                        <li><strong>6.1.</strong> Go to <strong>'Navigation Menu'</strong> --> <strong>'APIs & Services'</strong> --> <strong>'OAuth consent screen'</strong>.</li>
+                        <li><strong>6.2.</strong> Click <strong>'Data Access'</strong> (on the left panel).</li>
+                        <li><strong>6.3.</strong> Click <strong>'Add or remove scopes'</strong>.</li>
+                        <li><strong>6.4.</strong> In the <strong>'Filter'</strong> box, type <strong>'drive.metadata'</strong>.</li>
+                        <li><strong>6.5.</strong> Pick <strong>'.../auth/drive.metadata.readonly'</strong> and check the box for that scope.</li>
+                        <li><strong>6.6.</strong> Click <strong>'Update'</strong>, then scroll to the bottom, and click <strong>'Save'</strong>.</li>
+                    </ul>
+                    <div class="note warning">
+                        <strong>Note:</strong> Any app using these credentials will only be able to read the files/folders metadata. If you do not set scopes in the Google Cloud Project, TreeX4GD will still work in test mode, but without the added security layer that prevents a modified script from requesting full access to download, edit, or delete your files (see <em>Security Considerations</em> below).
+                    </div>
+                </li>
+                <li><strong>Setting Test Users</strong> (Required if you previously selected External Audience):
+                    <ul>
+                        <li><strong>7.1.</strong> Go to <strong>'Navigation Menu'</strong> --> <strong>'APIs & Services'</strong> --> <strong>'OAuth consent screen'</strong>.</li>
+                        <li><strong>7.2.</strong> Click <strong>'Audience'</strong> (on the left panel).</li>
+                        <li><strong>7.3.</strong> Click <strong>'Add users'</strong>, enter your email, and click <strong>'Save'</strong>.</li>
+                        <li><strong>7.4.</strong> (Optional) Add your friends' or coworkers' emails here (Gmail only). This allows them to use your credentials file without creating their own Google Cloud project.</li>
+                    </ul>
+                </li>
+            </ol>
+
+        </section>
+
+        <section id="usage-guide">
+            <h2>5. USAGE GUIDE</h2>
+            <img src="TreeX4GD-help-images/Usage-slides.gif" alt="Using TreeX4GD" style="max-width: 100%; height: auto; margin: 15px 0; border: 1px solid var(--border-color); border-radius: 6px;">
+
+            <ol>
+                <li><strong>Launch & Authenticate:</strong> Run the launcher script for your OS. Click "<strong>Select Credentials</strong>" and point the app to your downloaded credentials file (.json).</li>
+                <li><strong>Select Target Folder:</strong>
+                    <ul>
+                        <li><strong>Get ID:</strong> If you don't have a Folder ID, click "<strong>Browse Root</strong>". If this is your first action, your browser will open, requesting access. Once authorized, it opens your Drive; navigate to your target folder and copy the URL from the address bar.</li>
+                        <li><strong>Paste ID/URL:</strong> Paste that URL (or just the Folder ID) into the input field. (Note: the app will automatically extract the ID from the URL.)</li>
+                        <li><strong>Entire Drive:</strong> Alternatively, click "<strong>Set Root</strong>" to automatically target your top-level "<strong>My Drive</strong>".</li>
+                    </ul>
+                </li>
+                <li><strong>Scan:</strong> Click the <strong>Start</strong> button. If you haven't authenticated yet, your browser will open now to request read-only access. Once authorized, the app will begin logging the file tree in real-time.</li>
+                <li><strong>Export:</strong> Once the scan finishes (or is manually stopped), the export buttons will become available. Choose between HTML, Excel, or JSON formats to save your data.</li>
+            </ol>
+        </section>
+
+        <section id="export-formats">
+            <h2>6. EXPORT FORMATS IN DETAIL</h2>
+
+            <h3>HTML Interactive Report</h3>
+            <img src="TreeX4GD-help-images/Html-slides.gif" alt="Showing an HTML export" style="max-width: 100%; height: auto; margin: 15px 0; border: 1px solid var(--border-color); border-radius: 6px;">
+            <ul class="feature-list">
+                <li>A high-performance, standalone HTML file with:
+                    <ul>
+                        <li><strong>Virtual Scrolling:</strong> Uses <code>Clusterize.js</code> to handle massive file lists without crashing your browser.</li>
+                        <li><strong>Bulk Expand/Collapse:</strong> Use intuitive Level Selectors in the header to instantly expand or collapse folders across the entire report based on their specific depth hierarchy (supports <span class="kbd">Ctrl</span>+Click modifier).</li>
+                        <li><strong>Individual Expand/Collapse:</strong> Click explicitly on a folder's icon to expand or collapse that directory locally (also supports <span class="kbd">Ctrl</span>+Click modifier).</li>
+                        <li><strong>Interactive Links & Breadcrumbs:</strong> Every file and folder name acts as a direct, clickable hyperlink that opens the corresponding item instantly in Google Drive. Clicking anywhere else on a row selects it, highlighting the row for clear tracking. This also generates a hierarchical breadcrumb trail in the top bar to maintain your context through deep folders.</li>
+                        <li><strong>Advanced Local Search:</strong> Features a powerful search engine supporting logical syntax (e.g., <code>&gt;10MB</code>, <code>10MB..50MB</code>, <code>&lt;2023</code>, <code>2020..2022</code>, <code>&gt;21:45</code>). It also includes toggles for <strong>Ignore Diacritics</strong> (perfect for multilingual file names) and <strong>Case Insensitivity</strong>.</li>
+                        <li><strong>Persistent Settings:</strong> Remembers your Light/Dark mode, collapsed folders, and search preferences via browser <code>localStorage</code>.</li>
+                        <li><strong>Visualization-Focused:</strong> Optimized for structural browsing, displaying the visual tree and essential metadata (Names, Sizes, Types, Owners, and <strong>Modified Dates</strong>). For exhaustive data analysis and full metadata access, use the Excel export.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Excel Spreadsheet (.xlsx)</h3>
+            <img src="TreeX4GD-help-images/XLSX-in-LibreOffice.png" alt="Exported XLSX in LibreOffice" style="max-width: 100%; height: auto; margin: 15px 0; border: 1px solid var(--border-color); border-radius: 6px;">
+            <ul class="feature-list">
+                <li>A comprehensive, granular data report designed for deep analysis and archiving, with:
+                    <ul>
+                        <li><strong>Clean Layout:</strong> A structured table featuring frozen header rows and auto-adjusted column widths for instant readability.</li>
+                        <li><strong>Interactive Hyperlinks:</strong> Every entry includes a direct, clickable hyperlink on the file or folder name for instant access to that item directly on Google Drive.</li>
+                        <li><strong>Exhaustive Metadata:</strong> Captures a full technical snapshot of your cloud storage including the visual ASCII tree, exact sizes, file types, structural parent paths, hierarchy depth levels, ownership, last modifying editor, shared status, version history, MD5 hashes, and unique IDs — along with both Created and Modified dates (providing a significantly deeper data dive than the visualization-focused HTML report).</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Hierarchical JSON file</h3>
+            <img src="TreeX4GD-help-images/JSON-export.png" alt="Exported JSON" style="max-width: 100%; height: auto; margin: 15px 0; border: 1px solid var(--border-color); border-radius: 6px;">
+            <ul class="feature-list">
+                <li>A raw, lossless snapshot of the parsed file tree designed for data portability and backup, featuring:
+                    <ul>
+                        <li><strong>Offline Re-Importing:</strong> Can be loaded back into the TreeX4GD application at any time using the "Import Data" button. This allows you to generate completely new HTML or Excel reports offline without rescanning the cloud or consuming any Google API quota.</li>
+                        <li><strong>Lossless Architecture:</strong> Preserves the exact nested tree hierarchy, full structural metadata, and local directory byte totals precisely as calculated during the scan.</li>
+                        <li><strong>Automation & Script Friendly:</strong> Uses a clean, programmatic JSON schema, making it effortless for developers to feed the data into custom analytics scripts.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Log Export (.txt)</h3>
+            <ul class="feature-list">
+                <li>A thorough chronological ledger of the entire scanning execution and background thread processes, providing:
+                    <ul>
+                        <li><strong>Detailed Diagnostics:</strong> Records exact execution steps, real-time background worker tasks, folder processing milestones, and total scanned counts with precise timestamps.</li>
+                        <li><strong>Troubleshooting & Error Logs:</strong> Captures fine-grained network timeout alerts or Google API threshold rejections (<code>HttpError</code>), allowing you to instantly debug scan disruptions or identify issues.</li>
+                        <li><strong>High-Fidelity Encoding:</strong> Saved using standard UTF-8-BOM encoding to flawlessly preserve multi-language characters and structural logging icons (like 📂, 📄, and branch symbols).</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section id="building-standalone">
+            <h2>7. BUILDING A STANDALONE EXECUTABLE (OPTIONAL)</h2>
+            <p>If you want to compile the source code into a standalone, portable executable binary so that <strong>friends or coworkers</strong> can run TreeX4GD without needing Python installed on their systems, follow the steps below.</p>
+            
+            <h3>Platform-Specific Prerequisites & Execution Notes</h3>
+            <ul class="feature-list">
+                <li><strong>macOS Requirement (Xcode Command Line Tools):</strong> Building on macOS requires Apple's <strong>Xcode Command Line Tools</strong>. If they are not already installed on your system, executing the build script will automatically trigger the system prompt requesting installation. Keep in mind that this download is roughly 1 GB.</li>
+                <li><strong>Linux Execution Prompt ("Run in Terminal"):</strong> In desktop environments such as Linux Mint, double-clicking <code>build_for_linux.sh</code> presents options like <em>Run in Terminal</em>, <em>Display</em>, <em>Cancel</em>, and <em>Run</em>. <strong>Always select "Run in Terminal"</strong> (do not pick "Run"). Choosing "Run" executes the script silently in the background without any terminal output. If launched multiple times, concurrent instances will conflict with each other and cause build failures.</li>
+            </ul>
+
+            <h3>Step-by-Step Instructions</h3>
+            <ol>
+                <li><strong>Prepare Your Environment:</strong> Ensure you have already launched the application successfully at least once using your platform's automated launcher script — <code>run_in_windows.bat</code> (Windows), <code>run_in_macOS.command</code> (macOS), or <code>run_in_linux.sh</code> (Linux). This guarantees that PyInstaller and all core dependencies are properly downloaded and cached in your local virtual environment.</li>
+                <li><strong>Execute the OS-Specific Builder:</strong> Navigate to the <code>builders/</code> folder and execute the builder script dedicated to your operating system:
+                    <ul>
+                        <li><strong>Windows:</strong> Double-click <code>build_for_windows.bat</code></li>
+                        <li><strong>macOS:</strong> Double-click <code>build_for_macOS.command</code></li>
+                        <li><strong>Linux:</strong> Execute <code>build_for_linux.sh</code>:
+                            <ul>
+                                <li><em>Linux Mint / Cinnamon / XFCE:</em> Double-click and choose <strong>"Run in Terminal"</strong>.</li>
+                                <li><em>Ubuntu / GNOME:</em> Right-click --> <strong>"Run as a Program"</strong> (or launch via terminal with <code>./build_for_linux.sh</code>).</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Locate the Output:</strong> Once compilation finishes, the standalone executable binary will be generated inside the <code>builders/TreeX4GD-build-output/</code> directory.</li>
+                <li><strong>(Optional) System Integration on Linux:</strong> The Linux build process creates helper scripts (<code>install.sh</code> and <code>uninstall.sh</code>) inside the output folder. Running <code>./install.sh</code> adds TreeX4GD to your desktop application menu.</li>
+            </ol>
+            
+            <div class="note">
+                💡 <strong>Tip:</strong> If the application does not immediately appear in your system's Applications list after executing <code>install.sh</code>, simply log out and log back in to force your desktop environment to refresh its application menu cache.
+            </div>
+
+            <h3>Important Notes</h3>
+            <ul class="feature-list">
+                <li><strong>Pre-built Binaries:</strong> You may have noticed that there are no pre-compiled <code>.exe</code> or <code>.app</code> files provided in the GitHub Releases. This is a deliberate security decision (see <a href="#security-considerations">Security Considerations</a>).</li>
+                <li><strong>Help Documentation Access:</strong> When running the standalone executable, PyInstaller unpacks assets to a temporary system folder. On macOS and Linux, modern browser security policies often block access to HTML files located within these restricted system paths entirely. To ensure the documentation is accessible, clicking "Help" copies the manual to your Downloads folder for viewing. These temporary files are automatically deleted when the application is closed. (On Windows, the documentation opens directly from the temporary folder without this workaround, as these specific browser restrictions do not apply.)</li>
+            </ul>
+        </section>
+
+        <section id="security-considerations">
+            <h2>8. SECURITY CONSIDERATIONS</h2>
+            <p>Granting a third-party application access to your Google Drive can feel like a significant security risk — and rightfully so. Your cloud storage often contains sensitive personal, financial, or professional data.</p>
+            <p>TreeX4GD is designed with a "Security through Transparency" philosophy. Because this is a local tool rather than a hosted service, you have full visibility into how your data is handled. This section outlines the specific choices made to ensure that your data remains yours, and yours alone:</p>
+            
+            <ul class="feature-list">
+                <li><strong>Local Data Security:</strong> All data processing happens strictly on your local machine. No data is sent to third-party servers, to the developer, or to anyone whatsoever.</li>
+                <li><strong>Strictly Read-Only Scopes:</strong> TreeX4GD explicitly requests the <code>https://www.googleapis.com/auth/drive.metadata.readonly</code> scope. By design, the application <strong>cannot</strong> read file contents, modify files, delete data, or upload files. It only retrieves the technical attributes — such as names, types, sizes, timestamps, ownership, and versions — needed to build an accurate map of your Drive. However, because Google Cloud is lenient when an app is in "Testing" mode, it will allow a script to request any scope if one isn't explicitly defined and restricted in the console. Without this restriction, the script could theoretically be modified to request full access to your Google Drive files. Therefore, ensure you lock down the scope when setting up your Cloud Project and generating credentials (see <a href="#configuring-google-cloud-project">Configuring Google Cloud Project and Getting Credentials</a> for more details).</li>
+                <li><strong>Ephemeral Session Tokens:</strong> TreeX4GD is designed with a "leave-no-trace" approach. While most Google Drive tools store a persistent "access key" on your disk to keep you logged in, this app holds your authentication in volatile memory (RAM) only. Closing the application instantly erases your session, ensuring no permanent "keys" to your Drive are left on your machine.</li>
+                <li><strong>Use Only the Official Source:</strong> To ensure your security, only download TreeX4GD from its <a href="https://github.com/LuisMiCa/TreeX4GD" target="_blank">official GitHub repository</a>. Avoid third-party mirrors or unofficial websites, and be especially cautious of pre-compiled executables (.exe or .app files) found anywhere, as these cannot be verified against the original source code.</li>
+                <li><strong>No Bundled Binaries for Transparency:</strong> I do not distribute pre-compiled executables on GitHub. Distributing binaries requires users to blindly trust that the <code>.exe</code> matches the open-source code. By forcing users to either run the Python scripts directly or build the executables themselves using the provided tools, maximum transparency and security are guaranteed.</li>
+                <li><strong>Your data, your responsibility:</strong> Keep in mind that any of the exported <code>.html</code>, <code>.xlsx</code>, and <code>.json</code>, as well as the log files, contain your complete folder structures, exact file names, and other details. Treat these exports as sensitive documents and do not share them publicly. Regarding the credentials file: while it does not allow direct access to your Google Drive, it contains the digital identity of your API connection and should be kept private to protect your API quota.</li>
+                <li><strong>Interactive Report Storage:</strong> Each interactive HTML report you open will save some settings in the browser's localStorage, and if you collapse folders, it will also save the IDs of the hidden folders. This data is stored strictly on your machine and is not accessible by remote websites. But even if someone gains access to the IDs, they cannot use them to access your files <strong>unless</strong> they are already shared with "Anyone with the link".</li>
+            </ul>
+        </section>
+
+        <section id="project-background">
+            <h2>9. PROJECT BACKGROUND (THE "VIBE CODING" EXPERIMENT)</h2>
+            <p>This project started as an experiment in "vibe coding" — building software with heavy AI assistance (relying entirely on free-tier AI tools).</p>
+            <p>While I have a working knowledge of Python, web technologies (HTML/JS/CSS), and shell scripting — enough to handle the architecture, stitch the components together, and correct the logic — I am not an expert in any of them. Because of this, the bulk of the raw code generation was AI-driven. The core focus of this codebase is on practical functionality, reliability, and User Experience (UX), rather than rigid adherence to traditional coding aesthetics.</p>
+        </section>
+
+        <section id="license">
+            <h2>10. LICENSE & DISCLAIMER</h2>
+            <p><strong>Copyright (c) 2026 Luís Carvalho</strong></p>
+            <p>This project is licensed under the <strong>MIT License</strong>. You are free to use, modify, and distribute this software, provided that the original copyright notice and LICENSE file are included.</p>
+            <p><strong>Disclaimer of Affiliation:</strong><br>TreeX4GD is an independent, open-source hobby project. It is not affiliated with, sponsored, or endorsed by Google LLC. "Google Drive" and any related marks are trademarks of Google LLC.</p>
+            <p><strong>"As-Is":</strong><br>As stated in the LICENSE file, this software is provided "as-is", without warranty of any kind. The author is not responsible for any data loss, API quota exhaustion, or account restrictions that may occur through the use of this tool. You are solely responsible for securing your data.</p>
+        </section>
+
+        <footer style="margin-top: 30px; padding-top: 5px; border-top: 1px solid var(--border-color); font-size: 0.7em; color: var(--text-sidebar); opacity: 0.25; text-align: right;">
+            v<span id="doc-version-display"></span>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- THEME MANAGEMENT ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', target);
+            localStorage.setItem('TreeX4GD_theme', target);
+        }
+
+        // --- SIDEBAR TOGGLE & RESIZE LOGIC ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            
+            sidebar.classList.toggle('expanded');
+            
+            if (sidebar.classList.contains('expanded')) {
+                toggleBtn.textContent = '◀';
+                const savedWidth = localStorage.getItem('TreeX4GD_sidebar_width');
+                if (savedWidth) {
+                    sidebar.style.width = savedWidth;
+                    mainContent.style.marginLeft = savedWidth;
+                }
+            } else {
+                toggleBtn.textContent = '☰';
+                sidebar.style.width = '';
+                mainContent.style.marginLeft = '';
+            }
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 0. READ VERSION FROM THE META TAGS AND AUTO-POPULATE THE DOCUMENT
+            const scriptTierMeta = document.querySelector('meta[name="target-script-tier"]');
+            const helpRevisionMeta = document.querySelector('meta[name="help-revision"]');
+            
+            if (scriptTierMeta && helpRevisionMeta) {
+                const scriptTier = scriptTierMeta.getAttribute('content') || '';
+                const helpRevision = helpRevisionMeta.getAttribute('content') || '';
+                
+                // Formulate version strings based on requirements
+                const scriptVersionWithX = 'v' + scriptTier + '.x';
+                const fullDocVersion = scriptTier + '.' + helpRevision;
+
+                // Update Header
+                const headerVersionEl = document.getElementById('header-version');
+                if (headerVersionEl) headerVersionEl.textContent = scriptVersionWithX;
+
+                // Update Footer Elements
+                const docVersionDisplay = document.getElementById('doc-version-display');
+                if (docVersionDisplay) docVersionDisplay.textContent = fullDocVersion;
+
+                const scriptVersionDisplay = document.getElementById('script-version-display');
+                if (scriptVersionDisplay) scriptVersionDisplay.textContent = scriptVersionWithX;
+            }
+
+            // 1. Initialize Theme
+            const savedTheme = localStorage.getItem('TreeX4GD_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // 2. Setup Resizer
+            const resizer = document.getElementById('sidebar-resizer');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            let isResizing = false;
+
+            resizer.addEventListener('mousedown', (e) => {
+                if (!sidebar.classList.contains('expanded')) return;
+
+                isResizing = true;
+                document.body.classList.add('no-select'); 
+                sidebar.classList.add('no-transition');
+                mainContent.classList.add('no-transition');
+                resizer.classList.add('is-resizing');
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+                
+                let newWidth = e.clientX;
+                
+                if (newWidth < 150) newWidth = 150;
+                if (newWidth > 600) newWidth = 600;
+                
+                sidebar.style.width = `${newWidth}px`;
+                mainContent.style.marginLeft = `${newWidth}px`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.classList.remove('no-select');
+                    sidebar.classList.remove('no-transition');
+                    mainContent.classList.remove('no-transition');
+                    resizer.classList.remove('is-resizing');
+                    
+                    localStorage.setItem('TreeX4GD_sidebar_width', sidebar.style.width);
+                }
+            });
+
+            // 3. Generate TOC
+            const toc = document.getElementById('toc');
+            const headers = document.querySelectorAll('#main-content h2, #main-content h3');
+            
+            let currentH2Li = null;
+            let currentH3Ul = null;
+            const scrollSpyTargets = [];
+
+            headers.forEach(header => {
+                let targetId = header.id;
+                
+                // Handle H2s inside sections vs standalone headers
+                if (header.tagName === 'H2' && header.parentElement.tagName === 'SECTION') {
+                    if (!header.parentElement.id) {
+                        header.parentElement.id = header.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                    }
+                    targetId = header.parentElement.id;
+                } else {
+                    if (!targetId) {
+                        targetId = header.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                        header.id = targetId;
+                    }
+                }
+
+                // Register element for scrollspy
+                const targetElement = document.getElementById(targetId);
+                if (targetElement && !scrollSpyTargets.includes(targetElement)) {
+                    scrollSpyTargets.push(targetElement);
+                }
+
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#' + targetId;
+                a.textContent = header.textContent;
+                a.title = header.textContent;
+                a.dataset.target = targetId; 
+
+                // --- MOBILE AUTO-CLOSE & SMOOTH JUMP FIX ---
+                a.onclick = (e) => {
+                    if (window.innerWidth < 800) {
+                        if (sidebar.classList.contains('expanded')) {
+                            e.preventDefault(); // Stop native jump to handle it after layout updates
+                            toggleSidebar();
+                            
+                            // Wait for the 0.3s CSS width transition to finish before scrolling
+                            setTimeout(() => {
+                                const targetEl = document.getElementById(targetId);
+                                if (targetEl) {
+                                    targetEl.scrollIntoView({ behavior: 'smooth' });
+                                    history.pushState(null, null, '#' + targetId);
+                                }
+                            }, 320);
+                        }
+                    }
+                };
+
+                // Build Hierarchy
+                if (header.tagName === 'H2') {
+                    li.appendChild(a);
+                    toc.appendChild(li);
+                    currentH2Li = li;
+                    currentH3Ul = null; 
+                } else if (header.tagName === 'H3') {
+                    if (!currentH2Li) {
+                        li.appendChild(a);
+                        toc.appendChild(li);
+                    } else {
+                        if (!currentH3Ul) {
+                            currentH3Ul = document.createElement('ul');
+                            currentH2Li.appendChild(currentH3Ul);
+                            
+                            // Instantly apply the class so it remains permanently visible
+                            currentH2Li.classList.add('has-active-child');
+                        }
+                        li.appendChild(a);
+                        currentH3Ul.appendChild(li);
+                    }
+                }
+            });
+
+            // 4. ScrollSpy (Optimized Scroll Listener)
+            let lastActiveId = null; // Track active section to prevent animation spam
+
+            function updateScrollSpy() {
+                let currentActive = null;
+
+                // Check if scrolled to the absolute bottom of the page
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 10) {
+                    currentActive = scrollSpyTargets[scrollSpyTargets.length - 1];
+                } else {
+                    // Find the last element that passed the top threshold
+                    const triggerOffset = 150; 
+                    for (let i = 0; i < scrollSpyTargets.length; i++) {
+                        const rect = scrollSpyTargets[i].getBoundingClientRect();
+                        if (rect.top <= triggerOffset) {
+                            currentActive = scrollSpyTargets[i];
+                        }
+                    }
+                    if (!currentActive && scrollSpyTargets.length > 0) {
+                        currentActive = scrollSpyTargets[0];
+                    }
+                }
+
+                // ONLY update DOM and scroll sidebar when entering a NEW section
+                if (currentActive && currentActive.id !== lastActiveId) {
+                    lastActiveId = currentActive.id;
+
+                    document.querySelectorAll('#toc a').forEach(link => link.classList.remove('active'));
+
+                    const activeLink = document.querySelector(`#toc a[data-target="${currentActive.id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add('active');
+
+                        // Safe container-only scrolling (prevents Edge scrollIntoView conflicts)
+                        const container = document.getElementById('toc-container');
+                        if (container) {
+                            const containerRect = container.getBoundingClientRect();
+                            const linkRect = activeLink.getBoundingClientRect();
+
+                            const relativeTop = linkRect.top - containerRect.top;
+                            const relativeBottom = linkRect.bottom - containerRect.bottom;
+
+                            if (relativeTop < 0) {
+                                container.scrollBy({ top: relativeTop, behavior: 'smooth' });
+                            } else if (relativeBottom > 0) {
+                                container.scrollBy({ top: relativeBottom, behavior: 'smooth' });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Throttle scroll events
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        updateScrollSpy();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // Run once on load
+            updateScrollSpy();
+        });
+    </script>
+</body>
+</html>

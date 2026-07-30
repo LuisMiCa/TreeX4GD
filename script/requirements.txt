@@ -1,0 +1,6 @@
+cryptography>=46,<49; sys_platform == "darwin" and platform_machine == "x86_64"
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+openpyxl
