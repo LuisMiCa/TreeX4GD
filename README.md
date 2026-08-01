@@ -2,13 +2,14 @@
 
 # TreeX4GD
 File Tree Exporter for **Google Drive™**
-![TreeX4GD and some exports](assets/Hero-collage.png)
 
 
 ## 1. Overview
 TreeX4GD is a lightweight, open-source desktop tool designed to map your Google Drive into clean, easy-to-read reports. It complements the Google Drive web interface by providing capabilities it does not natively offer, such as hierarchical file trees and recursive folder size calculations.
 
 With a single scan, you can generate an interactive HTML tree, a comprehensive Excel spreadsheet, and/or a JSON data backup. These formats simplify searching, visualizing, and navigating even the most complex directory structures, allowing you to archive all metadata for offline review and analysis.
+
+![TreeX4GD and some exports](assets/Hero-collage.png)
 
 ---
 
