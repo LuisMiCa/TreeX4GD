@@ -743,7 +743,7 @@
       <div>
         <span class="eyebrow">Open-source · Windows · macOS · Linux</span>
         <h1>Your Google Drive,<br>mapped like a <span class="accent">file tree.</span></h1>
-        <p class="hero-sub">TreeX4GD scans any folder — personal or shared — and turns it into an interactive HTML report, an analysis-ready spreadsheet, or a portable JSON backup. It includes true, recursive folder sizes that the Google Drive web interface does not show.</p>
+        <p class="hero-sub">TreeX4GD recursively scans any Google Drive folder — personal or shared — and generates a file tree as an interactive HTML report, an analysis-ready spreadsheet, or a portable JSON backup. All three formats include the true folder sizes that Google's web interface doesn't provide.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="https://github.com/LuisMiCa/TreeX4GD" target="_blank" rel="noopener">
             <svg class="icon" viewBox="0 0 24 24" stroke="none" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.17c0 4.49 2.87 8.3 6.84 9.64.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.19-3.37-1.19-.45-1.17-1.11-1.48-1.11-1.48-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.17C22 6.58 17.52 2 12 2Z"/></svg>
@@ -780,7 +780,7 @@
       <div class="section-head" data-reveal>
         <span class="eyebrow">Key features</span>
         <h2>Beyond Google Drive's flat file list</h2>
-        <p>TreeX4GD complements the Google Drive web interface with the structural view and hard numbers it doesn't natively provide.</p>
+        <p>TreeX4GD delivers the structural view and hard numbers the Google Drive web interface leaves out.</p>
       </div>
 
       <div class="feature-grid" data-reveal>
@@ -797,7 +797,7 @@
         <div class="feature-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="5" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="M8 10.8l8-4.4M8 13.2l8 4.4"/></svg></div>
           <h3>Export your way</h3>
-          <p>One scan, three outputs: an interactive HTML tree, an analysis-ready Excel file, or a lossless JSON backup.</p>
+          <p>One scan, three outputs — choose between an interactive HTML tree, an analysis-ready Excel file, or a lossless JSON backup.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
@@ -823,7 +823,7 @@
       <div class="section-head" data-reveal>
         <span class="eyebrow">How it works</span>
         <h2>From folder to report in four steps</h2>
-        <p>TreeX4GD needs a one-time setup — creating a Google Cloud project and OAuth credentials, covered step-by-step in the guide. After setup, though, every scan follows the same simple flow:</p>
+        <p>Once you have your own OAuth credentials - from your Google Cloud Console - and the app is set up, you just need to follow these steps to get your first scan:</p>
       </div>
 
       <div class="workflow-inner">
@@ -862,6 +862,9 @@
           <img src="assets/Core-Workflow.webp" alt="TreeX4GD's desktop interface running a scan, showing live progress and the folder tree being built" loading="lazy">
         </div>
       </div>
+      <p class="setup-note" style="margin-top: var(--space-6);" data-reveal>
+        (See the detailed instructions on how to get the Google OAuth credentials in the <a href="script/TreeX4GD-help.html">guide</a>.)
+      </p>
     </div>
   </section>
 
@@ -869,15 +872,15 @@
     <div class="container">
       <div class="section-head" data-reveal>
         <span class="eyebrow">Getting set up</span>
-        <h2>Two ways to run TreeX4GD</h2>
-        <p>TreeX4GD is a Python script and it comes with OS-specific launcher scripts that handle everything for you. It also comes with builder scripts designed to create standalone executables that can run without a Python installation.</p>
+        <h2>Launch it or build it yourself</h2>
+        <p>TreeX4GD is a Python application at its core. You can run it directly using the provided OS-specific launchers, or use the builder tools to compile a portable app that doesn't require a Python installation (after it's built).</p>
       </div>
 
       <div class="setup-grid" data-reveal>
         <div class="setup-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></svg></div>
           <h3>Run from source</h3>
-          <p>The launcher script for your OS creates a virtual environment, installs dependencies, and starts the app — all in one step.</p>
+          <p>Acting as both installers and launchers, these OS-specific scripts handle the entire initial setup—creating your virtual environment and grabbing dependencies—before firing up the app.</p>
           <div class="flag-row">
             <span class="flag">run_in_windows.bat</span>
             <span class="flag">run_in_macOS.command</span>
@@ -887,7 +890,7 @@
         <div class="setup-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></div>
           <h3>Build a standalone app</h3>
-          <p>The matching builder script uses PyInstaller to package TreeX4GD into a self-contained executable — no Python install required to run it.</p>
+          <p>If you don't want to rely on the launchers, use the builder scripts. They package TreeX4GD into self-contained executables you can run anywhere, no Python required.</p>
           <div class="flag-row">
             <span class="flag">build_for_windows.bat</span>
             <span class="flag">build_for_macOS.command</span>
@@ -896,7 +899,7 @@
         </div>
       </div>
 
-      <p class="setup-note">Both routes — including the Google Cloud credential setup — are covered step-by-step in the <a href="script/TreeX4GD-help.html">setup guide</a>.</p>
+      <p class="setup-note">(Depending on your OS, you may need to install the Python or even some development tools. See all the details in the <a href="script/TreeX4GD-help.html">setup guide</a>.)</p>
     </div>
   </section>
 
