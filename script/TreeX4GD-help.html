@@ -178,6 +178,38 @@
             color: var(--accent-hover);
         }
 
+        /* Briefly draw attention to the collapsed contents panel on load. */
+        .toggle-btn.sidebar-hint {
+            animation: sidebar-hint-pulse 1s ease-in-out 0.5s 3;
+        }
+
+        .toggle-btn.sidebar-hint .toggle-icon {
+            animation: sidebar-icon-pulse 1s ease-in-out 0.5s 3;
+        }
+
+        @keyframes sidebar-hint-pulse {
+            0%, 100% {
+                background-color: transparent;
+                box-shadow: inset 0 0 0 0 transparent;
+            }
+            50% {
+                background-color: var(--toc-active);
+                box-shadow: inset 0 0 0 2px var(--accent-color);
+            }
+        }
+
+        @keyframes sidebar-icon-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .toggle-btn.sidebar-hint,
+            .toggle-btn.sidebar-hint .toggle-icon {
+                animation: none;
+            }
+        }
+
         /* --- THEME TOGGLE SQUARE SLIDER --- */
         .theme-toggle-btn {
             background-color: var(--border-color);
@@ -493,7 +525,7 @@
     <div id="sidebar">
         <div id="sidebar-resizer"></div>
         <div class="sidebar-header">
-            <button id="sidebarToggle" class="toggle-btn" onclick="toggleSidebar()" title="Expand/Collapse Menu">☰</button>
+            <button id="sidebarToggle" class="toggle-btn" onclick="toggleSidebar()" title="Expand/Collapse Menu" aria-label="Toggle table of contents" aria-controls="toc-container" aria-expanded="false"><span class="toggle-icon" aria-hidden="true">☰</span></button>
             
             <button class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Mode">
                 <div class="theme-toggle-track">
@@ -519,7 +551,7 @@
 
         <section id="overview">
             <h2>1. OVERVIEW</h2>
-            <p>TreeX4GD is a lightweight, open-source desktop tool designed to map your Google Drive into clean, easy-to-read reports. It complements the Google Drive web interface by providing capabilities it does not natively offer, such as hierarchical file trees and recursive folder size calculations.</p>
+            <p>TreeX4GD is a lightweight, <a href="https://github.com/LuisMiCa/TreeX4GD" target="_blank" rel="noopener noreferrer">open-source</a> desktop tool designed to map your Google Drive into clean, easy-to-read reports. It complements the Google Drive web interface by providing capabilities it does not natively offer, such as hierarchical file trees and recursive folder size calculations.</p>
             <p>With a single scan, you can generate an interactive HTML tree, a comprehensive Excel spreadsheet, and/or a JSON data backup. These formats simplify searching, visualizing, and navigating even the most complex directory structures, allowing you to archive all metadata for offline review and analysis.</p>
             <img src="TreeX4GD-help-images/TreeX4GD-and-HTML.png" alt="TreeX4GD and an HTML export" style="max-width: 100%; height: auto; margin: 15px 0; border: 1px solid var(--border-color); border-radius: 6px;">
         </section>
@@ -847,18 +879,21 @@
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('main-content');
             const toggleBtn = document.getElementById('sidebarToggle');
+            const toggleIcon = toggleBtn.querySelector('.toggle-icon');
             
-            sidebar.classList.toggle('expanded');
+            const isExpanded = sidebar.classList.toggle('expanded');
+            toggleBtn.classList.remove('sidebar-hint');
+            toggleBtn.setAttribute('aria-expanded', String(isExpanded));
             
-            if (sidebar.classList.contains('expanded')) {
-                toggleBtn.textContent = '◀';
+            if (isExpanded) {
+                toggleIcon.textContent = '◀';
                 const savedWidth = localStorage.getItem('TreeX4GD_sidebar_width');
                 if (savedWidth) {
                     sidebar.style.width = savedWidth;
                     mainContent.style.marginLeft = savedWidth;
                 }
             } else {
-                toggleBtn.textContent = '☰';
+                toggleIcon.textContent = '☰';
                 sidebar.style.width = '';
                 mainContent.style.marginLeft = '';
             }
@@ -893,6 +928,15 @@
             // 1. Initialize Theme
             const savedTheme = localStorage.getItem('TreeX4GD_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // Briefly hint that the table of contents can be opened.
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                sidebarToggle.addEventListener('animationend', () => {
+                    sidebarToggle.classList.remove('sidebar-hint');
+                }, { once: true });
+                sidebarToggle.classList.add('sidebar-hint');
+            }
 
             // 2. Setup Resizer
             const resizer = document.getElementById('sidebar-resizer');
