@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="A Starfleet clearance notice for the TreeX4GD example export.">
+  <title>Access denied | USS Aether</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #090a0e;
+      --text: #f2eee8;
+      --muted: #b7b6c6;
+      --amber: #ffcc99;
+      --lavender: #b7a4e3;
+      --coral: #e99a8e;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 40px 24px;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    .terminal { width: min(100%, 860px); }
+
+    .masthead {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      margin: 0 0 16px 100px;
+      text-transform: uppercase;
+    }
+
+    .ship {
+      color: var(--amber);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+    }
+
+    .registry {
+      color: var(--lavender);
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+    }
+
+    .screen {
+      display: grid;
+      grid-template-columns: 68px minmax(0, 1fr);
+      grid-template-rows: 24px auto 16px;
+      gap: 8px;
+    }
+
+    .top-elbow {
+      grid-row: 1 / 3;
+      border-radius: 56px 0 0 0;
+      background: var(--amber);
+      position: relative;
+    }
+
+    .top-elbow::after {
+      content: "";
+      position: absolute;
+      inset: 100px 0 0;
+      border-top: 8px solid var(--background);
+      background: var(--lavender);
+    }
+
+    .top-bar {
+      border-radius: 0 24px 24px 0;
+      background: linear-gradient(to right,
+        var(--amber) 0 59%, var(--background) 59% 61%,
+        var(--coral) 61% 80%, var(--background) 80% 82%,
+        var(--lavender) 82%);
+    }
+
+    .content { padding: 48px 32px 40px; }
+
+    .eyebrow {
+      margin: 0 0 22px;
+      color: var(--lavender);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      line-height: 1.6;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      color: var(--amber);
+      font-size: clamp(2.25rem, 7vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .message {
+      max-width: 32em;
+      margin: 0 0 32px;
+      font-size: 1.125rem;
+      line-height: 1.7;
+    }
+
+    .return-link {
+      position: relative;
+      display: inline-block;
+      padding: 12px 24px;
+      border: 2px solid var(--lavender);
+      border-radius: 28px;
+      color: var(--lavender);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      animation: return-link-entry 3s linear 0.2s 1;
+    }
+
+    @keyframes return-link-entry {
+      0%, 100% { box-shadow: 0 0 0 transparent; }
+      12%, 78% {
+        box-shadow: 0 0 12px #b7a4e366, 0 0 28px #ffcc9933;
+      }
+    }
+
+    .return-orbit {
+      position: absolute;
+      inset: -2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      overflow: visible;
+      pointer-events: none;
+      opacity: 0;
+      filter: drop-shadow(0 0 4px var(--amber));
+      animation: return-orbit-entry 3s linear 0.2s 1;
+    }
+
+    .return-orbit rect {
+      x: 1.5px;
+      y: 1.5px;
+      width: calc(100% - 3px);
+      height: calc(100% - 3px);
+      rx: 28px;
+      fill: none;
+      stroke: var(--amber);
+      stroke-width: 3px;
+      stroke-linecap: round;
+      stroke-dasharray: 14 86;
+      animation: return-orbit-lap 1.5s linear 0.2s 2;
+    }
+
+    @keyframes return-orbit-entry {
+      0%, 100% { opacity: 0; }
+      12%, 78% { opacity: 1; }
+    }
+
+    @keyframes return-orbit-lap {
+      to { stroke-dashoffset: -100; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .return-link, .return-orbit, .return-orbit rect { animation: none; }
+    }
+
+    .return-link:hover {
+      background: var(--lavender);
+      color: var(--background);
+    }
+
+    .return-link:focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 5px;
+    }
+
+    .footnote {
+      margin-top: 44px;
+      padding-top: 20px;
+      border-top: 1px solid #383344;
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+
+    .footnote p { margin: 0; }
+    .footnote strong { color: var(--text); }
+
+    .bottom-cap {
+      border-radius: 0 0 0 16px;
+      background: var(--coral);
+    }
+
+    .bottom-bar {
+      border-radius: 0 16px 16px 0;
+      background: var(--lavender);
+    }
+
+    @media (max-width: 540px) {
+      body { padding: 28px 16px; }
+      .masthead { margin-left: 44px; }
+      .screen { grid-template-columns: 28px minmax(0, 1fr); }
+      .content { padding: 32px 8px 28px; }
+      .eyebrow { letter-spacing: 0.1em; }
+      .message { font-size: 1rem; }
+      .return-link { padding: 12px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="terminal" aria-labelledby="notice-title">
+    <header class="masthead">
+      <span class="ship">USS Aether</span>
+      <span class="registry">NCC-748Z5 / LCARS</span>
+    </header>
+    <div class="screen">
+      <div class="top-elbow" aria-hidden="true"></div>
+      <div class="top-bar" aria-hidden="true"></div>
+      <div class="content">
+        <p class="eyebrow">Starfleet database / Restricted access</p>
+        <h1 id="notice-title">Access denied</h1>
+        <p class="message">You do not have the appropriate clearance to view this data.</p>
+        <a class="return-link" href="USS_Aether_NCC-748Z5.html">
+          <svg class="return-orbit" aria-hidden="true"><rect pathLength="100"></rect></svg>
+          &larr; Return to the example report
+        </a>
+        <footer class="footnote">
+          <p><strong>This is a mock file.</strong> It is part of the TreeX4GD example export. In a normal export, each link opens the respective file or folder in Google Drive.</p>
+        </footer>
+      </div>
+      <div class="bottom-cap" aria-hidden="true"></div>
+      <div class="bottom-bar" aria-hidden="true"></div>
+    </div>
+  </main>
+  <script>
+    // Embedded notices dismiss the overlay; direct visits retain the normal link.
+    (function() {
+      if (new URLSearchParams(window.location.search).get('embedded') !== '1' ||
+          window.parent === window) return;
+
+      function returnToReport() {
+        // Local files have opaque security origins, so an explicit file://
+        // target would discard this message. The report checks our window identity.
+        window.parent.postMessage({ type: 'aether-clearance:return' }, '*');
+      }
+
+      document.querySelector('.return-link').addEventListener('click', function(event) {
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        returnToReport();
+      });
+
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          returnToReport();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
