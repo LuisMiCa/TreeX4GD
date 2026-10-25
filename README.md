@@ -1,4 +1,4 @@
-<!-- Document version 1.0.0 (revision 0 for TreeX4GD v1.0.x) -->
+<!-- Document version 1.0.1 (revision 1 for TreeX4GD v1.0.x) -->
 
 # TreeX4GD
 [File Tree Exporter for **Google Drive™**](https://luismica.github.io/TreeX4GD/)
