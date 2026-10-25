@@ -728,7 +728,11 @@
                         <li><strong>Entire Drive:</strong> Alternatively, click "<strong>Set Root</strong>" to automatically target your top-level "<strong>My Drive</strong>".</li>
                     </ul>
                 </li>
-                <li><strong>Scan:</strong> Click the <strong>Start</strong> button. If you haven't authenticated yet, your browser will open now to request read-only access. Once authorized, the app will begin logging the file tree in real-time.</li>
+                <li><strong>Scan:</strong> Click the <strong>Start</strong> button. If you haven't authenticated yet, your browser will open now to request read-only access. Once authorized, the app will begin logging the file tree in real-time.
+                    <div class="note">
+                        <strong>Acquisition time:</strong> Scanning large folder trees can take tens of minutes, depending on the number of files and folders, network and Google Drive API response times, and any retry delays. For example, one scan containing <strong>179 folders and 9,428 files took about 19 minutes</strong>. Actual times vary. You can monitor progress in the live log and use <strong>Pause</strong>, <strong>Resume</strong>, or <strong>Stop</strong> as needed.
+                    </div>
+                </li>
                 <li><strong>Export:</strong> Once the scan finishes (or is manually stopped), the export buttons will become available. Choose between HTML, Excel, or JSON formats to save your data.</li>
             </ol>
         </section>

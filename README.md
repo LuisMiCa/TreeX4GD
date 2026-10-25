@@ -146,6 +146,9 @@ I have intentionally chosen not to bundle "pre-authorized" project credentials. 
 1. **Launch & Authenticate:** Run the launcher script for your OS. Click "**Select Credentials**" and point the application to your credentials `.json` file.
 2. **Select Target Folder:** If you don't already have a Folder ID, click "**Browse Root**". Your browser will open to request access if needed; once authorized, navigate to your target folder in Google Drive and copy the URL from the address bar. Paste that URL (or just the ID) into the app's input field. Alternatively, click "**Set Root**" to automatically target your top-level "**My Drive**".
 3. **Scan:** Click the **Start** button. If you haven't authenticated yet, your browser will open to request read-only access. Once authorized, the app will begin logging the file tree in real-time.
+
+   > **Acquisition time:** Scanning large folder trees can take tens of minutes, depending on the number of files and folders, network and Google Drive API response times, and any retry delays. For example, one scan containing **179 folders and 9,428 files took about 19 minutes**. Actual times vary. You can monitor progress in the live log and use **Pause**, **Resume**, or **Stop** as needed.
+
 4. **Export:** Once the scan finishes (or is manually stopped), the export buttons will become available. Choose between HTML, Excel, or JSON formats to save the scanned metadata.
 
 
