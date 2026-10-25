@@ -1,7 +1,7 @@
 <!-- Document version 1.0.0 (revision 0 for TreeX4GD v1.0.x) -->
 
 # TreeX4GD
-File Tree Exporter for **Google Drive™**
+[File Tree Exporter for **Google Drive™**](https://luismica.github.io/TreeX4GD/)
 
 
 ## 1. Overview
@@ -154,6 +154,8 @@ I have intentionally chosen not to bundle "pre-authorized" project credentials. 
 
 ## 6. Export Formats in Detail
 ### HTML Interactive Report
+Explore the [live demo](https://luismica.github.io/TreeX4GD/#live-demo) to try an interactive HTML report.
+
 ![Opening and showing an HTML export](assets/HTML-demo.webp)
 * A high-performance, standalone HTML file with: 
     * **Virtual Scrolling:** Uses `Clusterize.js` to handle massive file lists without crashing your browser.
