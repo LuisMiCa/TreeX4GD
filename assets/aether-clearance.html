@@ -15,6 +15,13 @@
       --amber: #ffcc99;
       --lavender: #b7a4e3;
       --coral: #e99a8e;
+      --blue: #9cafe5;
+      --rail-width: 96px;
+      --bar-height: 28px;
+      --top-height: 100px;
+      --bottom-height: 64px;
+      --frame-gap: 8px;
+      --content-padding: clamp(24px, 4vw, 48px);
       font-family: "Segoe UI", Arial, sans-serif;
     }
 
@@ -26,12 +33,12 @@
       min-height: 100svh;
       display: grid;
       place-items: center;
-      padding: 40px 24px;
+      padding: clamp(24px, 5vh, 48px) 24px;
       background: var(--background);
       color: var(--text);
     }
 
-    .terminal { width: min(100%, 860px); }
+    .terminal { width: min(100%, 960px); }
 
     .masthead {
       display: flex;
@@ -39,77 +46,124 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px 24px;
-      margin: 0 0 16px 100px;
+      margin: 0 0 18px calc(var(--rail-width) + var(--content-padding));
       text-transform: uppercase;
     }
 
     .ship {
       color: var(--amber);
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       font-weight: 700;
       letter-spacing: 0.14em;
     }
 
     .registry {
       color: var(--lavender);
-      font-size: 0.8rem;
+      font-family: Consolas, "Liberation Mono", monospace;
+      font-size: 0.75rem;
       letter-spacing: 0.12em;
     }
 
     .screen {
       display: grid;
-      grid-template-columns: 68px minmax(0, 1fr);
-      grid-template-rows: 24px auto 16px;
-      gap: 8px;
+      grid-template-columns: var(--rail-width) minmax(0, 1fr);
+      grid-template-rows: var(--top-height) auto var(--bottom-height);
     }
 
     .top-elbow {
-      grid-row: 1 / 3;
-      border-radius: 56px 0 0 0;
+      grid-column: 1;
+      grid-row: 1;
+      border-radius: var(--top-height) 0 0 0;
       background: var(--amber);
-      position: relative;
     }
 
-    .top-elbow::after {
-      content: "";
-      position: absolute;
-      inset: 100px 0 0;
-      border-top: 8px solid var(--background);
-      background: var(--lavender);
+    .top-bar, .bottom-bar {
+      grid-column: 2;
+      position: relative;
+      display: flex;
+      gap: var(--frame-gap);
+      min-width: 0;
     }
 
     .top-bar {
-      border-radius: 0 24px 24px 0;
-      background: linear-gradient(to right,
-        var(--amber) 0 59%, var(--background) 59% 61%,
-        var(--coral) 61% 80%, var(--background) 80% 82%,
-        var(--lavender) 82%);
+      grid-row: 1;
+      background: linear-gradient(var(--amber), var(--amber)) left top / calc(var(--top-height) - var(--bar-height)) 100% no-repeat;
     }
 
-    .content { padding: 48px 32px 40px; }
+    .top-bar::after {
+      content: "";
+      position: absolute;
+      inset: var(--bar-height) 0 0;
+      border-top-left-radius: calc(var(--top-height) - var(--bar-height));
+      background: var(--background);
+    }
 
-    .eyebrow {
-      margin: 0 0 22px;
-      color: var(--lavender);
+    .bar-segment {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: var(--bar-height);
+      min-width: 0;
+      padding: 0 14px;
+      overflow: hidden;
+      color: var(--background);
+      font-family: Consolas, "Liberation Mono", monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .bar-main { flex: 1; background: var(--amber); }
+    .bar-mid { flex: 0 0 20%; background: var(--coral); }
+    .bar-end { flex: 0 0 17%; border-radius: 0 var(--bar-height) var(--bar-height) 0; background: var(--lavender); }
+
+    .side-rail {
+      grid-column: 1;
+      grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      gap: var(--frame-gap);
+      padding-block: var(--frame-gap);
+    }
+
+    .rail-block {
+      display: flex;
+      flex: 1;
+      align-items: flex-end;
+      justify-content: flex-end;
+      min-height: 48px;
+      padding: 12px;
+      background: var(--lavender);
+      color: var(--background);
+      font-family: Consolas, "Liberation Mono", monospace;
       font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      line-height: 1.6;
-      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .rail-block:nth-child(2) { flex: 0.75; background: var(--blue); }
+    .rail-block:nth-child(3) { flex: 0.6; background: var(--coral); }
+
+    .content {
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 0;
+      padding: 12px var(--content-padding) 36px;
     }
 
     h1 {
       margin: 0 0 20px;
       color: var(--amber);
-      font-size: clamp(2.25rem, 7vw, 4rem);
-      font-weight: 600;
+      font-family: "Arial Narrow", "Liberation Sans Narrow", "Segoe UI", sans-serif;
+      font-size: clamp(2.5rem, 6.5vw, 4.5rem);
+      font-weight: 700;
       letter-spacing: -0.03em;
       line-height: 1.1;
       text-transform: uppercase;
     }
 
     .message {
-      max-width: 32em;
+      max-width: 34em;
       margin: 0 0 32px;
       font-size: 1.125rem;
       line-height: 1.7;
@@ -118,12 +172,17 @@
     .return-link {
       position: relative;
       display: inline-block;
-      padding: 12px 24px;
+      max-width: 100%;
+      min-height: 48px;
+      padding: 13px 24px;
       border: 2px solid var(--lavender);
       border-radius: 28px;
-      color: var(--lavender);
+      background: var(--lavender);
+      color: var(--background);
       font-size: 0.875rem;
       font-weight: 600;
+      line-height: 1.5;
+      text-align: center;
       text-decoration: none;
       animation: return-link-entry 3s linear 0.2s 1;
     }
@@ -175,7 +234,8 @@
     }
 
     .return-link:hover {
-      background: var(--lavender);
+      border-color: var(--amber);
+      background: var(--amber);
       color: var(--background);
     }
 
@@ -185,8 +245,9 @@
     }
 
     .footnote {
-      margin-top: 44px;
-      padding-top: 20px;
+      max-width: 54em;
+      margin-top: 36px;
+      padding-top: 24px;
       border-top: 1px solid #383344;
       color: var(--muted);
       font-size: 0.875rem;
@@ -194,26 +255,53 @@
     }
 
     .footnote p { margin: 0; }
-    .footnote strong { color: var(--text); }
+    .footnote strong { color: var(--lavender); }
 
     .bottom-cap {
-      border-radius: 0 0 0 16px;
+      grid-column: 1;
+      grid-row: 3;
+      border-radius: 0 0 0 var(--bottom-height);
       background: var(--coral);
     }
 
     .bottom-bar {
-      border-radius: 0 16px 16px 0;
-      background: var(--lavender);
+      grid-row: 3;
+      align-items: flex-end;
+      background: linear-gradient(var(--coral), var(--coral)) left top / calc(var(--bottom-height) - var(--bar-height)) 100% no-repeat;
     }
 
+    .bottom-bar::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 var(--bar-height);
+      border-bottom-left-radius: calc(var(--bottom-height) - var(--bar-height));
+      background: var(--background);
+    }
+
+    .bottom-bar .bar-main { background: var(--coral); }
+    .bottom-bar .bar-mid { background: var(--lavender); }
+    .bottom-bar .bar-end { background: var(--amber); }
+
     @media (max-width: 540px) {
-      body { padding: 28px 16px; }
-      .masthead { margin-left: 44px; }
-      .screen { grid-template-columns: 28px minmax(0, 1fr); }
-      .content { padding: 32px 8px 28px; }
-      .eyebrow { letter-spacing: 0.1em; }
+      :root {
+        --rail-width: 32px;
+        --bar-height: 18px;
+        --top-height: 56px;
+        --bottom-height: 42px;
+        --frame-gap: 6px;
+        --content-padding: 16px;
+      }
+      body { padding: 24px 12px; }
+      .masthead { gap: 6px; margin-bottom: 14px; }
+      .ship { font-size: 1.15rem; }
+      .registry { width: 100%; font-size: 0.65rem; }
+      .bar-segment { padding-inline: 0; font-size: 0; }
+      .rail-block { padding: 8px; font-size: 0.6rem; }
+      .content { padding-top: 8px; padding-bottom: 24px; }
+      h1 { font-size: clamp(2rem, 8.4vw, 2.75rem); }
       .message { font-size: 1rem; }
-      .return-link { padding: 12px 18px; }
+      .return-link { padding: 12px 16px; font-size: 0.8rem; }
+      .footnote { margin-top: 28px; padding-top: 20px; font-size: 0.8rem; }
     }
   </style>
 </head>
@@ -225,11 +313,20 @@
     </header>
     <div class="screen">
       <div class="top-elbow" aria-hidden="true"></div>
-      <div class="top-bar" aria-hidden="true"></div>
+      <div class="top-bar" aria-hidden="true">
+        <span class="bar-segment bar-main">Starfleet database</span>
+        <span class="bar-segment bar-mid">Access control</span>
+        <span class="bar-segment bar-end">Restricted</span>
+      </div>
+      <div class="side-rail" aria-hidden="true">
+        <span class="rail-block">01</span>
+        <span class="rail-block">02</span>
+        <span class="rail-block">03</span>
+        <span class="rail-block">04</span>
+      </div>
       <div class="content">
-        <p class="eyebrow">Starfleet database / Restricted access</p>
         <h1 id="notice-title">Access denied</h1>
-        <p class="message">You do not have the appropriate clearance to view this data.</p>
+        <p class="message">This information is restricted to authorized Starfleet personnel.</p>
         <a class="return-link" href="USS_Aether_NCC-748Z5.html">
           <svg class="return-orbit" aria-hidden="true"><rect pathLength="100"></rect></svg>
           &larr; Return to the example report
@@ -239,7 +336,11 @@
         </footer>
       </div>
       <div class="bottom-cap" aria-hidden="true"></div>
-      <div class="bottom-bar" aria-hidden="true"></div>
+      <div class="bottom-bar" aria-hidden="true">
+        <span class="bar-segment bar-main">Starfleet</span>
+        <span class="bar-segment bar-mid">Aether</span>
+        <span class="bar-segment bar-end">01</span>
+      </div>
     </div>
   </main>
   <script>

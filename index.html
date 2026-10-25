@@ -24,13 +24,13 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="TreeX4GD — File Tree Exporter for Google Drive™">
 <meta property="og:description" content="Browse your Google Drive folder tree, compare calculated folder sizes, and export HTML, Excel, or JSON metadata reports. Free and open-source.">
-<meta property="og:image" content="assets/TreeX4GD%20Neon%20Hero.png">
+<meta property="og:image" content="assets/TreeX4GD-neon-hero.png">
 <meta property="og:url" content="https://github.com/LuisMiCa/TreeX4GD">
 <meta property="og:site_name" content="TreeX4GD">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="TreeX4GD — File Tree Exporter for Google Drive™">
 <meta name="twitter:description" content="Browse your Google Drive folder tree, compare calculated folder sizes, and export HTML, Excel, or JSON metadata reports. Free and open-source.">
-<meta name="twitter:image" content="assets/TreeX4GD%20Neon%20Hero.png">
+<meta name="twitter:image" content="assets/TreeX4GD-neon-hero.png">
 
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0a0a0d" media="(prefers-color-scheme: dark)">
@@ -295,6 +295,8 @@
 
   .nav-links a { color: var(--color-ink-muted); transition: color .15s ease, opacity .25s ease; padding-block: .3rem; opacity: 1; }
   .nav-links a:hover { color: var(--color-ink); }
+  .nav-links .external-link, .toc-menu .external-link { display: inline-flex; align-items: center; gap: .35em; }
+  .external-link .icon { flex-shrink: 0; }
 
   /* Fade out visible ToC links when menu is open */
   body.toc-open .nav-links a:not(.hide) { opacity: 0; pointer-events: none; }
@@ -491,23 +493,26 @@
     box-shadow: var(--shadow-md);
   }
   .shot-frame img { width: 100%; height: auto; background: var(--color-surface-2); }
+  .report-collage { margin: 0; }
 
   /* ---------------------------------------------------------
      SETUP
   --------------------------------------------------------- */
   .setup-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
   .setup-card { border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg-elevated); padding: var(--space-6); }
-  .setup-card .icon-wrap {
-    width: 40px; height: 40px; border-radius: var(--radius-sm);
-    background: var(--color-accent-soft); color: var(--color-accent);
-    display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-4);
-  }
-  .setup-card .icon-wrap .icon { width: 20px; height: 20px; }
+  .setup-step { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-4); }
   .setup-card h3 { font-size: 1.1rem; margin-bottom: var(--space-2); }
   .setup-card summary { cursor: pointer; font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; }
   .setup-card[open] summary { margin-bottom: var(--space-4); }
   .setup-card p { color: var(--color-ink-muted); font-size: .93rem; }
-  .setup-card .flag-row { margin-top: var(--space-5); }
+  .setup-card p a { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+  .setup-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-5); }
+  .setup-launchers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); margin: var(--space-5) 0 0; }
+  .setup-launchers dt { font-size: .9rem; font-weight: 600; margin-bottom: var(--space-2); }
+  .setup-launchers dd { margin: 0; }
+  .setup-launchers code { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
+  .setup-first-run { margin-top: var(--space-4); }
+  .setup-build { margin-top: var(--space-5); }
   .setup-note { margin-top: var(--space-6); color: var(--color-ink-muted); font-size: .92rem; }
   .setup-note a { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
 
@@ -524,7 +529,7 @@
     flex-direction: column;
   }
   .format-card figure { margin: 0; background: var(--color-surface-2); border-bottom: 1px solid var(--color-border); }
-  .format-card figure img { width: 100%; height: 160px; object-fit: cover; }
+  .format-card figure img { width: 100%; height: 220px; object-fit: cover; object-position: center top; }
   .format-icon-wrap { height: 160px; display: flex; align-items: center; justify-content: center; background: var(--color-surface-2); border-bottom: 1px solid var(--color-border); }
   .format-icon-wrap .icon { width: 44px; height: 44px; color: var(--color-accent-2); stroke-width: 1.4; }
   .format-body { padding: var(--space-5); }
@@ -610,34 +615,9 @@
   .security-card p { color: var(--color-ink-muted); font-size: .88rem; }
 
   /* ---------------------------------------------------------
-     CTA BANNER
-  --------------------------------------------------------- */
-  .cta-banner {
-    /* Reduced brightness and saturation to a darker slate */
-    background: color-mix(in srgb, var(--color-accent-strong) 15%, #18181c 85%);
-    color: #fff;
-    border-radius: var(--radius-lg);
-    margin-inline: auto;
-    max-width: var(--container);
-    padding: var(--space-8) clamp(1.5rem, 5vw, 4rem);
-    text-align: center;
-  }
-  .cta-banner h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); color: #fff; }
-  .cta-banner p { color: rgba(255,255,255,.82); margin-top: var(--space-3); font-size: 1.05rem; }
-  .cta-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); }
-  .cta-banner .btn-primary { 
-    background: #fff; 
-    color: #111116; /* Updated to Dark Color */
-  }
-  .cta-banner .btn-primary:hover { background: #eef4f0; color: #000; }
-  .cta-banner .btn-ghost { border-color: rgba(255,255,255,.4); color: #fff; }
-  .cta-banner .btn-ghost:hover { border-color: #fff; color: #fff; }
-  .cta-fine { margin-top: var(--space-5); font-family: var(--font-mono); font-size: .78rem; color: rgba(255,255,255,.65); }
-
-  /* ---------------------------------------------------------
      FOOTER
   --------------------------------------------------------- */
-  footer { padding-block: var(--space-8) var(--space-6); border-top: 1px solid var(--color-border); margin-top: var(--space-8); }
+  footer { padding-block: var(--space-8) var(--space-6); border-top: 1px solid var(--color-border); }
   .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: var(--space-7); }
   .footer-brand { display: flex; align-items: center; gap: .6rem; }
   .footer-brand img { width: 26px; height: 26px; border-radius: 6px; }
@@ -683,15 +663,16 @@
     .workflow-inner { grid-template-columns: 1fr; }
     .setup-grid { grid-template-columns: 1fr; }
     .format-grid { grid-template-columns: 1fr; }
+    .format-card figure img { height: clamp(260px, 40vw, 360px); }
     .security-grid { grid-template-columns: repeat(2, 1fr); }
     .footer-grid { grid-template-columns: 1fr; gap: var(--space-6); }
   }
 
   @media (max-width: 620px) {
     .feature-grid { grid-template-columns: 1fr; }
+    .setup-launchers { grid-template-columns: 1fr; }
     .security-grid { grid-template-columns: 1fr; }
     .demo-frame-wrap iframe { height: 460px; }
-    .cta-banner { border-radius: var(--radius-md); }
     .demo-toolbar .path { display: none; }
   }
 </style>
@@ -711,11 +692,12 @@
 
     <nav class="nav-links" id="navLinks" aria-label="Primary">
       <a href="#features">Features</a>
+      <a href="#desktop-app">Desktop app</a>
       <a href="#live-demo">Live demo</a>
       <a href="#how-it-works">How it works</a>
       <a href="#export-formats">Formats</a>
       <a href="#setup">Setup</a>
-      <a href="script/TreeX4GD-help.html">Help</a>
+      <a class="external-link" href="script/TreeX4GD-help.html">Help <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 5h5v5"/><path d="M19 5l-9 9"/><path d="M17 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h5"/></svg></a>
     </nav>
     <div id="tocMenu" class="toc-menu" aria-hidden="true">
       <ul></ul>
@@ -772,7 +754,7 @@
             <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
             <span class="path">TreeX4GD · Scan, create a file tree, export</span>
           </div>
-          <img src="assets/TreeX4GD%20Neon%20Hero.png" alt="Neon diagram showing TreeX4GD scanning Google Drive metadata, creating a file tree, and exporting HTML, JSON, and Excel reports" loading="eager">
+          <img src="assets/TreeX4GD-neon-hero.png" alt="Neon diagram showing TreeX4GD scanning Google Drive metadata, creating a file tree, and exporting HTML, JSON, and Excel reports" loading="eager">
         </div>
 
       </div>
@@ -784,7 +766,7 @@
       <div class="section-head" data-reveal>
         <span class="eyebrow">Key features</span>
         <h2>A clearer view of your Drive</h2>
-        <p>Browse folder structure, compare calculated folder totals, and keep a local record of your files.</p>
+        <p>Browse folder structure, compare calculated folder totals, and save a snapshot of your Drive’s structure and metadata.</p>
       </div>
 
       <div class="feature-grid" data-reveal>
@@ -796,12 +778,12 @@
         <div class="feature-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20V14"/><path d="M10 20V10"/><path d="M16 20V4"/><path d="M2 20h20"/></svg></div>
           <h3>Calculated folder sizes</h3>
-          <p>Compare recursive totals for scanned file sizes. These totals can differ from your account's storage usage.</p>
+          <p>See how file sizes add up across your folder hierarchy.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="5" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="M8 10.8l8-4.4M8 13.2l8 4.4"/></svg></div>
           <h3>Export your way</h3>
-          <p>One scan, three outputs — browse an interactive HTML tree, analyze an Excel report, or reuse a JSON metadata snapshot.</p>
+          <p>Export your scan as an interactive HTML tree, an Excel spreadsheet, or a reusable JSON metadata snapshot.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
@@ -811,14 +793,28 @@
         <div class="feature-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
           <h3>Runs entirely on your machine</h3>
-          <p>Read metadata directly from Google Drive and create reports locally, without a TreeX4GD account.</p>
+          <p>Read metadata straight from Google Drive and build reports on your computer, with no third party in between.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg></div>
           <h3>Stay in control of long scans</h3>
-          <p>Background scanning, rate limiting, and automatic retries support long scans, with Pause, Resume, and Stop controls.</p>
+          <p>Pause, resume, or stop long scans while TreeX4GD manages request limits and retries.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="desktop-app">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">The desktop app</span>
+        <h2>Built with Python. Made for your desktop.</h2>
+        <p>TreeX4GD combines a Python core with a Tkinter interface for scan controls, a live log window, and exports. To get started on Windows, macOS, or Linux, use the included launchers, which prepare the environment, install dependencies, and open the app.</p>
+      </div>
+
+      <figure class="shot-frame report-collage" data-reveal>
+        <img src="assets/Hero-collage.png" alt="Collage showing TreeX4GD's desktop interface and log window alongside its exported HTML tree and Excel spreadsheet" width="1666" height="1660" loading="lazy">
+      </figure>
     </div>
   </section>
 
@@ -827,7 +823,7 @@
       <div class="section-head" data-reveal>
         <span class="eyebrow">Try it yourself</span>
         <h2>Explore a 9,607-item report</h2>
-        <p>Expand folders, collapse a level, or try a search. In Size/Date search mode, enter <code>&gt;10MB</code> to find larger files and folders.</p>
+        <p>Explore the interactive controls, from collapsing and expanding folders to level selectors, advanced search, dark mode, and more.</p>
       </div>
 
       <div class="demo-frame-wrap" id="demoFrameWrap" data-reveal>
@@ -849,8 +845,8 @@
       </div>
 
       <p class="demo-note">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
-        <span>This report was scanned from a real Google Drive folder. Sizes, dates, and owners were anonymized for the demo.</span>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7h.01"/></svg>
+        <span>This report was scanned from a real Google Drive folder. Sizes, dates, and owners were anonymized, and Google Drive links were redirected to a demo notice.</span>
       </p>
     </div>
   </section>
@@ -876,21 +872,21 @@
             <span class="step-num">2</span>
             <div>
               <h4>Choose your target</h4>
-              <p>Paste a folder URL or ID, or set the root to scan your My Drive.</p>
+              <p>Paste a folder URL or ID, or choose the root to scan your entire My Drive.</p>
             </div>
           </li>
           <li class="step">
             <span class="step-num">3</span>
             <div>
               <h4>Start the scan</h4>
-              <p>Sign in to Google when prompted, then follow progress in the live log. Pause, resume, or stop the scan as needed.</p>
+              <p>Sign in to Google when prompted, then monitor the scan in the log window. Pause, resume, or stop the scan as needed.</p>
             </div>
           </li>
           <li class="step">
             <span class="step-num">4</span>
             <div>
               <h4>Export</h4>
-              <p>Save the finished map as HTML, Excel, or JSON — ready to browse, analyze, or archive.</p>
+              <p>Save the scan results as HTML, Excel, or JSON — ready to browse, analyze, or archive.</p>
             </div>
           </li>
         </ol>
@@ -900,7 +896,7 @@
         </div>
       </div>
       <p class="setup-note" style="margin-top: var(--space-6);" data-reveal>
-        The <a href="script/TreeX4GD-help.html">setup guide</a> walks you through creating your Google Cloud project and OAuth credentials.
+        To connect TreeX4GD to Google Drive, you’ll need your own Google Cloud project and OAuth credentials. The <a href="script/TreeX4GD-help.html">setup guide</a> walks you through creating both.
       </p>
     </div>
   </section>
@@ -972,33 +968,64 @@
     <div class="container">
       <div class="section-head" data-reveal>
         <span class="eyebrow">Getting set up</span>
-        <h2>Start with the source release</h2>
-        <p>Download the source, install Python 3.11+, and use the launcher for your OS. You'll also need your own Google Cloud project and OAuth credentials.</p>
-      </div>
-
-      <div class="setup-grid" data-reveal>
-        <div class="setup-card">
-          <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></svg></div>
-          <h3>Run from source (recommended)</h3>
-          <p>After you install Python 3.11+, the launcher creates a virtual environment, installs the required Python packages, and opens the app.</p>
-          <div class="flag-row">
-            <span class="flag">run_in_windows.bat</span>
-            <span class="flag">run_in_macOS.command</span>
-            <span class="flag">run_in_linux.sh</span>
-          </div>
+        <h2>Get ready for your first scan.</h2>
+        <p>Prepare your computer, launch TreeX4GD, and connect to Google Drive.</p>
+        <div class="setup-actions">
+          <a class="btn btn-primary" href="https://github.com/LuisMiCa/TreeX4GD/releases" target="_blank" rel="noopener">Download TreeX4GD</a>
+          <a class="btn btn-ghost" href="script/TreeX4GD-help.html#setup">Open setup guide</a>
         </div>
-        <details class="setup-card">
-          <summary>Optional: build a standalone app</summary>
-          <p>First prepare the environment with the launcher. Building requires Python and platform build tools. The finished app runs without Python installed on compatible systems with the same OS and architecture.</p>
-          <div class="flag-row">
-            <span class="flag">build_for_windows.bat</span>
-            <span class="flag">build_for_macOS.command</span>
-            <span class="flag">build_for_linux.sh</span>
-          </div>
-        </details>
       </div>
 
-      <p class="setup-note">Downloadable releases contain source code; building an executable is optional. Follow the <a href="script/TreeX4GD-help.html">setup guide</a> for OAuth instructions and platform requirements.</p>
+      <ol class="setup-grid" role="list" data-reveal>
+        <li class="setup-card setup-step">
+          <span class="step-num" aria-hidden="true">1</span>
+          <div>
+            <h3>Install Python</h3>
+            <p>Install Python 3.11 or newer. The setup guide covers any additional requirements for your operating system.</p>
+          </div>
+        </li>
+        <li class="setup-card setup-step">
+          <span class="step-num" aria-hidden="true">2</span>
+          <div>
+            <h3>Download and extract TreeX4GD</h3>
+            <p>Download the release archive for your operating system and extract it to a folder on your computer. The archive includes the source code and launchers.</p>
+          </div>
+        </li>
+        <li class="setup-card setup-step">
+          <span class="step-num" aria-hidden="true">3</span>
+          <div>
+            <h3>Run your launcher</h3>
+            <p>Open the extracted <code>script/</code> folder and run the launcher for your operating system.</p>
+            <dl class="setup-launchers">
+              <div>
+                <dt>Windows</dt>
+                <dd><code>run_in_windows.bat</code></dd>
+              </div>
+              <div>
+                <dt>macOS</dt>
+                <dd><code>run_in_macOS.command</code></dd>
+              </div>
+              <div>
+                <dt>Linux</dt>
+                <dd><code>run_in_linux.sh</code></dd>
+              </div>
+            </dl>
+            <p class="setup-first-run">The first launch prepares the Python environment and installs required packages automatically, so it can take a little longer.</p>
+          </div>
+        </li>
+        <li class="setup-card setup-step">
+          <span class="step-num" aria-hidden="true">4</span>
+          <div>
+            <h3>Connect Google Drive</h3>
+            <p>To let TreeX4GD read your Drive’s metadata, you’ll need your own Google Cloud project and OAuth credentials. Follow the <a href="script/TreeX4GD-help.html#configuring-google-cloud-project">setup guide</a> to create them, then select the credentials JSON file in the app.</p>
+          </div>
+        </li>
+      </ol>
+
+      <details class="setup-card setup-build" data-reveal>
+        <summary>Optional: build a standalone app</summary>
+        <p>Build an app that runs without Python installed on compatible computers with the same operating system and architecture. The <a href="script/TreeX4GD-help.html#building-standalone">setup guide</a> covers preparation, build requirements, and instructions.</p>
+      </details>
     </div>
   </section>
 
@@ -1007,14 +1034,14 @@
       <div class="section-head" data-reveal>
         <span class="eyebrow">Security</span>
         <h2>Read-only access. Local reports.</h2>
-        <p>The app connects directly to Google Drive and processes the returned metadata on your computer.</p>
+        <p>The app reads metadata directly from Google Drive and processes it on your computer.</p>
       </div>
 
       <div class="security-grid" data-reveal>
         <div class="security-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
           <h3>Local report processing</h3>
-          <p>TreeX4GD doesn't send your Drive metadata to the developer or a TreeX4GD server. You choose where to save your reports.</p>
+          <p>TreeX4GD processes your Drive’s metadata locally on your computer and saves reports to a location of your choice.</p>
         </div>
         <div class="security-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
@@ -1024,31 +1051,13 @@
         <div class="security-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Z"/><path d="M12 8v4l3 2"/></svg></div>
           <h3>No saved sign-in tokens</h3>
-          <p>Session tokens stay in memory and aren't saved to disk by the app. Your selected OAuth credentials JSON file stays where you store it.</p>
+          <p>Session tokens stay in memory and aren’t saved to disk. They’re discarded when you close the app.</p>
         </div>
         <div class="security-card">
           <div class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg></div>
-          <h3>Bring your own credentials</h3>
-          <p>Connect using your own Google Cloud project's OAuth client. Drive API usage is assigned to that project.</p>
+          <h3>Use your own credentials</h3>
+          <p>Connect to Google Drive using OAuth credentials from your own Google Cloud project, keeping access to your metadata under your control.</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="container">
-      <div class="cta-banner" data-reveal>
-        <h2>Map your Drive. Keep the report.</h2>
-        <p>Download the source and follow the guide to create your first folder map. Requires Python 3.11+ and your own Google OAuth credentials.</p>
-        <div class="cta-actions">
-          <a class="btn btn-primary" href="https://github.com/LuisMiCa/TreeX4GD/releases" target="_blank" rel="noopener">
-            <span>Get TreeX4GD source</span>
-          </a>
-          <a class="btn btn-ghost" href="script/TreeX4GD-help.html">
-            <span>Read the guide</span>
-          </a>
-        </div>
-        <p class="cta-fine">no TreeX4GD account · no app telemetry · MIT licensed</p>
       </div>
     </div>
   </section>
@@ -1186,9 +1195,9 @@
       // the user has every option available in the dropdown.
       allLinks.forEach(function (origLink) {
         var li = document.createElement('li');
-        var a = document.createElement('a');
-        a.href = origLink.getAttribute('href');
-        a.textContent = origLink.textContent.trim();
+        var a = origLink.cloneNode(true);
+        a.classList.remove('hide');
+        a.style.removeProperty('display');
         a.addEventListener('click', function () {
           document.body.classList.remove('toc-open');
           tocToggle.setAttribute('aria-expanded', 'false');
