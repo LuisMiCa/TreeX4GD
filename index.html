@@ -276,13 +276,13 @@
   .brand-icon { width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0; }
   .brand-text { display: flex; flex-direction: column; line-height: 1; }
   .brand-name { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; letter-spacing: -.01em; }
-.brand-tagline {
+  .brand-tagline {
     font-family: var(--font-mono);
     font-size: .72rem; /* Reduced from .78rem */
     color: var(--color-ink-muted);
     margin-top: 2px;
     white-space: nowrap;
-    display: block !important; /* Prevents it from hiding on small screens */
+    display: block;
   }
 
   .nav-links { 
@@ -303,16 +303,24 @@
   /* Fade out visible ToC links when menu is open */
   body.toc-open .nav-links a:not(.hide) { opacity: 0; pointer-events: none; }
 
-  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-3); flex-shrink: 0; }
   .gh-link svg { width: 16px; height: 16px; }
 
   /* ToC (overflow) toggle and menu */
   .toc-toggle {
     width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
-    border: 1px solid var(--color-border); border-radius: var(--radius-full);
+    flex-shrink: 0;
+    border: 0; border-color: var(--color-border); border-radius: var(--radius-full);
     color: var(--color-ink); background: none; cursor: pointer; margin-right: 6px; display: none;
-    transition: border-color .15s ease, color .15s ease, transform .2s ease;
+    position: relative;
+    transition: border-color .15s ease, color .15s ease;
   }
+  .toc-toggle-circle, .toc-toggle-ripple {
+    position: absolute; inset: 0;
+    border: 1px solid; border-color: inherit; border-radius: inherit;
+    pointer-events: none;
+  }
+  .toc-toggle-ripple { border-color: var(--color-accent); opacity: 0; }
   /* Updated rotation animation */
   .toc-toggle .icon-plus { width: 16px; height: 16px; transition: transform .3s ease; transform-origin: center; }
   body.toc-open .toc-toggle .icon-plus { transform: rotate(135deg); }
@@ -338,7 +346,7 @@
     flex-shrink: 0;
     position: relative;
   }
-  .theme-toggle:hover, .nav-toggle:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .toc-toggle:hover, .theme-toggle:hover, .nav-toggle:hover { border-color: var(--color-accent); color: var(--color-accent); }
   .theme-toggle svg {
     width: 18px; height: 18px;
     position: absolute; top: 50%; left: 50%;
@@ -350,11 +358,6 @@
   .theme-toggle .icon-moon { opacity: 0; }
   [data-theme="dark"] .theme-toggle .icon-sun { opacity: 0; }
   [data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; }
-  /* On hover, preview the icon for the mode a click would switch TO — purely visual. */
-  [data-theme="light"] .theme-toggle:hover .icon-sun { opacity: 0; }
-  [data-theme="light"] .theme-toggle:hover .icon-moon { opacity: 1; }
-  [data-theme="dark"] .theme-toggle:hover .icon-moon { opacity: 0; }
-  [data-theme="dark"] .theme-toggle:hover .icon-sun { opacity: 1; }
 
   .nav-toggle { display: none; }
   .nav-toggle .icon-close { display: none; }
@@ -671,6 +674,9 @@
   }
 
   @media (max-width: 620px) {
+    .topbar-inner { gap: var(--space-3); }
+    .brand, .brand-text { min-width: 0; }
+    .brand-tagline { white-space: normal; line-height: 1.3; }
     .feature-grid { grid-template-columns: 1fr; }
     .setup-launchers { grid-template-columns: 1fr; }
     .security-grid { grid-template-columns: 1fr; }
@@ -707,6 +713,8 @@
 
     <div class="topbar-actions">
       <button class="toc-toggle" id="tocToggle" type="button" aria-label="Open section menu" aria-expanded="false" aria-controls="tocMenu">
+        <span class="toc-toggle-circle" aria-hidden="true"></span>
+        <span class="toc-toggle-ripple" aria-hidden="true"></span>
         <svg class="icon icon-plus" viewBox="0 0 24 24" stroke="currentColor" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
 
@@ -1184,10 +1192,13 @@
     if (navLinks) navLinks.style.setProperty('display', 'flex', 'important');
 
     var tocToggle = document.getElementById('tocToggle');
+    var tocRipple = tocToggle.querySelector('.toc-toggle-ripple');
     var tocMenu = document.getElementById('tocMenu');
     var topbarInner = document.querySelector('.topbar-inner');
     var brandEl = document.querySelector('.brand');
     var actionsEl = document.querySelector('.topbar-actions');
+    var previousVisibleLinkCount = null;
+    var tocUpdateAnimation = null;
 
     function buildTocList(allLinks) {
       var ul = tocMenu.querySelector('ul');
@@ -1219,8 +1230,8 @@
       var rect = tocToggle.getBoundingClientRect();
       var menuW = tocMenu.offsetWidth;
       
-      // Menu opens near the top, always on the left of the '+' button
-      var left = Math.round(rect.left - menuW - 8);
+      // Prefer the left of the '+' button, keeping the menu inside the viewport.
+      var left = Math.round(Math.max(8, Math.min(rect.left - menuW - 8, document.documentElement.clientWidth - menuW - 8)));
       var top = Math.round(Math.max(8, rect.top - 4));
       
       tocMenu.style.left = left + 'px';
@@ -1234,10 +1245,14 @@
       var links = Array.from(navLinks.querySelectorAll('a'));
 
       // Reset links to natural state to measure them accurately
+      navLinks.style.setProperty('display', 'flex', 'important');
       links.forEach(function(a) { 
         a.classList.remove('hide'); 
         a.style.display = ''; 
       });
+      var linkWidths = links.map(function(a) { return a.offsetWidth; });
+      // Reserve the brand and controls before allocating space to navigation.
+      navLinks.style.setProperty('display', 'none', 'important');
       tocToggle.style.display = 'none';
 
       // Accurately measure the actual container space (minus padding)
@@ -1263,7 +1278,7 @@
 
       // Pass 1: Try fitting them assuming the '+' button is hidden
       for (var i = 0; i < links.length; i++) {
-        var w = links[i].offsetWidth + (i > 0 ? navGap : 0);
+        var w = linkWidths[i] + (i > 0 ? navGap : 0);
         if (acc + w <= available) {
           acc += w;
         } else {
@@ -1275,6 +1290,7 @@
       // Pass 2: If they don't fit, the '+' button appears, which eats up space. Recalculate.
       if (firstHiddenIndex !== -1) {
         tocToggle.style.display = 'inline-flex';
+        brandW = brandEl.offsetWidth;
         actionsW = actionsEl.offsetWidth;
         available = innerW - brandW - actionsW - (topbarGap * 2);
         
@@ -1282,7 +1298,7 @@
         firstHiddenIndex = -1;
         
         for (var i = 0; i < links.length; i++) {
-          var w2 = links[i].offsetWidth + (i > 0 ? navGap : 0);
+          var w2 = linkWidths[i] + (i > 0 ? navGap : 0);
           if (acc + w2 <= available) {
             acc += w2;
           } else {
@@ -1291,6 +1307,9 @@
           }
         }
       }
+
+      // Remove an empty navigation group so it doesn't leave extra flex gaps.
+      navLinks.style.setProperty('display', firstHiddenIndex === 0 ? 'none' : 'flex', 'important');
 
       // Apply the hiding logic: items on the right drop off first, one by one.
       if (firstHiddenIndex !== -1) {
@@ -1308,6 +1327,23 @@
         tocMenu.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('toc-open');
       }
+
+      var visibleLinkCount = firstHiddenIndex === -1 ? links.length : firstHiddenIndex;
+      if (previousVisibleLinkCount !== null && visibleLinkCount !== previousVisibleLinkCount) {
+        if (tocUpdateAnimation) tocUpdateAnimation.cancel();
+        if (firstHiddenIndex !== -1 && tocRipple.animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          var rippleFrames = visibleLinkCount < previousVisibleLinkCount ? [
+            { transform: 'scale(1.55)', opacity: 0 },
+            { transform: 'scale(1.3)', opacity: .7, offset: .3 },
+            { transform: 'scale(1)', opacity: 0 }
+          ] : [
+            { transform: 'scale(1)', opacity: .7 },
+            { transform: 'scale(1.55)', opacity: 0 }
+          ];
+          tocUpdateAnimation = tocRipple.animate(rippleFrames, { duration: 360, easing: 'ease-out' });
+        }
+      }
+      previousVisibleLinkCount = visibleLinkCount;
     }
 
     var resizeTimer = null;
@@ -1319,6 +1355,7 @@
       }); 
     }
     window.addEventListener('resize', onResize);
+    if (document.fonts) document.fonts.ready.then(onResize);
     
     // Initial run - execute immediately rather than waiting 40ms
     updateNavVisibility(); 
