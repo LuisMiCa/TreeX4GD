@@ -90,6 +90,7 @@
         /* --- SIDEBAR STRUCTURE --- */
         #sidebar {
             height: 100vh;
+            height: 100dvh;
             width: 30px; 
             position: fixed;
             z-index: 1000;
@@ -98,7 +99,7 @@
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border-color);
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-x: hidden;
+            overflow: hidden; /* Only the contents list should scroll. */
             white-space: nowrap;
             box-shadow: 2px 0 10px var(--shadow);
             display: flex;
@@ -284,7 +285,8 @@
 
         /* --- NESTED TABLE OF CONTENTS --- */
         #toc-container {
-            flex-grow: 1;
+            flex: 1;
+            min-height: 0;
             overflow-y: auto;
             overscroll-behavior: contain; 
             opacity: 0;
@@ -386,6 +388,145 @@
 
         #sidebar.expanded + #main-content {
             margin-left: 280px; 
+        }
+
+        #mobile-sidebar-toggle,
+        #sidebar-swipe-area,
+        #sidebar-backdrop {
+            display: none;
+        }
+
+        /* Changing layout modes should not play the drawer's open/close animation. */
+        body.sidebar-layout-changing #sidebar,
+        body.sidebar-layout-changing #sidebar *,
+        body.sidebar-layout-changing #main-content,
+        body.sidebar-layout-changing #sidebar-backdrop {
+            transition: none !important;
+        }
+
+        /* On phones, slide over the document instead of squeezing its layout. */
+        @media (max-width: 799px), (max-width: 1024px) and (hover: none) and (pointer: coarse) {
+            #sidebar,
+            #sidebar.expanded {
+                width: min(320px, calc(100vw - 48px));
+                box-sizing: border-box;
+                padding-top: env(safe-area-inset-top, 0px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+                transform: translateX(-100%);
+                visibility: hidden;
+                transition: transform 0.3s ease, visibility 0s 0.3s;
+                touch-action: pan-y pinch-zoom;
+            }
+
+            #sidebar.expanded {
+                transform: translateX(0);
+                visibility: visible;
+                transition-delay: 0s;
+            }
+
+            #toc-container {
+                touch-action: pan-y pinch-zoom;
+            }
+
+            #sidebar .sidebar-header {
+                justify-content: space-between;
+                padding: 0 10px;
+            }
+
+            #sidebar .toggle-btn {
+                width: 44px;
+                min-width: 44px;
+                height: 44px;
+            }
+
+            #sidebar .theme-toggle-btn {
+                display: block;
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            #sidebar-resizer {
+                display: none;
+            }
+
+            #main-content,
+            #sidebar.expanded + #main-content {
+                margin-left: 0;
+                padding: 76px 24px 50vh;
+                overflow-wrap: anywhere;
+            }
+
+            #main-content section,
+            #main-content h2,
+            #main-content h3 {
+                scroll-margin-top: calc(76px + env(safe-area-inset-top, 0px));
+            }
+
+            #mobile-sidebar-toggle {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                position: fixed;
+                top: calc(12px + env(safe-area-inset-top, 0px));
+                left: calc(12px + env(safe-area-inset-left, 0px));
+                z-index: 950;
+                min-height: 44px;
+                padding: 0 12px;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                background: var(--bg-sidebar);
+                color: var(--accent-color);
+                box-shadow: 0 2px 8px var(--shadow);
+                font: inherit;
+                cursor: pointer;
+            }
+
+            #sidebar-swipe-area {
+                display: block;
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 24px;
+                z-index: 900;
+                touch-action: pan-y pinch-zoom;
+            }
+
+            #sidebar-backdrop {
+                display: block;
+                position: fixed;
+                inset: 0;
+                z-index: 999;
+                background: rgba(0, 0, 0, 0.4);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s;
+                touch-action: pan-y pinch-zoom;
+            }
+
+            body.mobile-sidebar-open {
+                position: fixed;
+                left: 0;
+                right: 0;
+                overflow: hidden;
+            }
+
+            body.mobile-sidebar-open #sidebar-backdrop {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            body.mobile-sidebar-open #mobile-sidebar-toggle {
+                visibility: hidden;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #sidebar,
+            #sidebar.expanded,
+            #sidebar-backdrop {
+                transition: none;
+            }
         }
 
         /* --- TYPOGRAPHY & ELEMENTS --- */
@@ -522,7 +663,11 @@
 </head>
 <body>
 
-    <div id="sidebar">
+    <button id="mobile-sidebar-toggle" onclick="toggleSidebar()" aria-label="Open table of contents" aria-controls="sidebar" aria-expanded="false" title="Open contents, or swipe right from the left edge"><span aria-hidden="true">☰</span> Contents</button>
+    <div id="sidebar-swipe-area" aria-hidden="true"></div>
+    <div id="sidebar-backdrop" aria-hidden="true"></div>
+
+    <div id="sidebar" role="navigation" aria-label="Table of contents">
         <div id="sidebar-resizer"></div>
         <div class="sidebar-header">
             <button id="sidebarToggle" class="toggle-btn" onclick="toggleSidebar()" title="Expand/Collapse Menu" aria-label="Toggle table of contents" aria-controls="toc-container" aria-expanded="false"><span class="toggle-icon" aria-hidden="true">☰</span></button>
@@ -536,7 +681,7 @@
             </button>
             
         </div>
-        <div id="toc-container">
+        <div id="toc-container" inert>
             <ul id="toc">
             </ul>
         </div>
@@ -880,28 +1025,66 @@
         }
 
         // --- SIDEBAR TOGGLE & RESIZE LOGIC ---
-        function toggleSidebar() {
+        const mobileSidebarQuery = window.matchMedia('(max-width: 799px), (max-width: 1024px) and (hover: none) and (pointer: coarse)');
+        let mobileScrollY = null;
+
+        function syncSidebarLayout() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('main-content');
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const toggleIcon = toggleBtn.querySelector('.toggle-icon');
-            
-            const isExpanded = sidebar.classList.toggle('expanded');
-            toggleBtn.classList.remove('sidebar-hint');
-            toggleBtn.setAttribute('aria-expanded', String(isExpanded));
-            
-            if (isExpanded) {
-                toggleIcon.textContent = '◀';
-                const savedWidth = localStorage.getItem('TreeX4GD_sidebar_width');
-                if (savedWidth) {
-                    sidebar.style.width = savedWidth;
-                    mainContent.style.marginLeft = savedWidth;
+            const isExpanded = sidebar.classList.contains('expanded');
+            const isMobile = mobileSidebarQuery.matches;
+            const isMobileOpen = isMobile && isExpanded;
+
+            const savedWidth = !isMobile && isExpanded
+                ? localStorage.getItem('TreeX4GD_sidebar_width') : '';
+            sidebar.style.width = savedWidth || '';
+            mainContent.style.marginLeft = savedWidth || '';
+            mainContent.inert = isMobileOpen;
+            sidebar.inert = isMobile && !isExpanded;
+            document.getElementById('toc-container').inert = !isExpanded;
+            sidebar.setAttribute('role', isMobileOpen ? 'dialog' : 'navigation');
+
+            if (isMobileOpen) {
+                sidebar.setAttribute('aria-modal', 'true');
+                if (mobileScrollY === null) {
+                    mobileScrollY = window.scrollY;
+                    document.body.style.top = `-${mobileScrollY}px`;
+                    document.body.classList.add('mobile-sidebar-open');
                 }
             } else {
-                toggleIcon.textContent = '☰';
-                sidebar.style.width = '';
-                mainContent.style.marginLeft = '';
+                sidebar.removeAttribute('aria-modal');
+                document.body.classList.remove('mobile-sidebar-open');
+                document.body.style.top = '';
+                if (mobileScrollY !== null) {
+                    const scrollY = mobileScrollY;
+                    mobileScrollY = null;
+                    window.scrollTo({ top: scrollY, behavior: 'instant' });
+                }
             }
+        }
+
+        function setSidebarExpanded(isExpanded, restoreFocus = true) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+            const wasMobileOpen = document.body.classList.contains('mobile-sidebar-open');
+
+            sidebar.classList.toggle('expanded', isExpanded);
+            toggleBtn.classList.remove('sidebar-hint');
+            toggleBtn.setAttribute('aria-expanded', String(isExpanded));
+            mobileToggle.setAttribute('aria-expanded', String(isExpanded));
+            toggleBtn.querySelector('.toggle-icon').textContent = isExpanded ? '◀' : '☰';
+            syncSidebarLayout();
+
+            if (mobileSidebarQuery.matches && isExpanded) {
+                toggleBtn.focus({ preventScroll: true });
+            } else if (wasMobileOpen && restoreFocus) {
+                mobileToggle.focus({ preventScroll: true });
+            }
+        }
+
+        function toggleSidebar() {
+            setSidebarExpanded(!document.getElementById('sidebar').classList.contains('expanded'));
         }
 
         // --- INITIALIZATION ---
@@ -949,8 +1132,110 @@
             const mainContent = document.getElementById('main-content');
             let isResizing = false;
 
+            function finishSidebarResize() {
+                if (!isResizing) return;
+                isResizing = false;
+                document.body.classList.remove('no-select');
+                sidebar.classList.remove('no-transition');
+                mainContent.classList.remove('no-transition');
+                resizer.classList.remove('is-resizing');
+                localStorage.setItem('TreeX4GD_sidebar_width', sidebar.style.width);
+            }
+
+            let sidebarLayoutFrame = null;
+            syncSidebarLayout();
+            mobileSidebarQuery.addEventListener('change', () => {
+                cancelAnimationFrame(sidebarLayoutFrame);
+                document.body.classList.add('sidebar-layout-changing');
+                finishSidebarResize();
+                syncSidebarLayout();
+                if (mobileSidebarQuery.matches && sidebar.classList.contains('expanded')) {
+                    sidebarToggle.focus({ preventScroll: true });
+                } else if (mobileSidebarQuery.matches && sidebar.contains(document.activeElement)) {
+                    document.getElementById('mobile-sidebar-toggle').focus({ preventScroll: true });
+                }
+                // Commit the new geometry before enabling normal toggle animations again.
+                sidebar.getBoundingClientRect();
+                sidebarLayoutFrame = requestAnimationFrame(() => {
+                    document.body.classList.remove('sidebar-layout-changing');
+                    sidebarLayoutFrame = null;
+                });
+            });
+
+            // Horizontal gestures use a dedicated edge strip so code blocks can scroll normally.
+            const swipeArea = document.getElementById('sidebar-swipe-area');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            let swipe = null;
+            let suppressSwipeClick = false;
+
+            backdrop.addEventListener('click', () => setSidebarExpanded(false));
+
+            document.addEventListener('pointerdown', (event) => {
+                suppressSwipeClick = false;
+                swipe = null;
+                if (!mobileSidebarQuery.matches || event.pointerType !== 'touch' || !event.isPrimary) return;
+                const isExpanded = sidebar.classList.contains('expanded');
+                const canSwipe = isExpanded
+                    ? sidebar.contains(event.target) || backdrop.contains(event.target)
+                    : swipeArea.contains(event.target);
+                if (canSwipe) {
+                    swipe = { id: event.pointerId, x: event.clientX, y: event.clientY, isExpanded };
+                }
+            }, { passive: true });
+
+            document.addEventListener('pointermove', (event) => {
+                if (!swipe || event.pointerId !== swipe.id) return;
+                const dx = event.clientX - swipe.x;
+                const dy = event.clientY - swipe.y;
+                // Once a gesture becomes vertical, leave it to native scrolling.
+                if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) swipe = null;
+            }, { passive: true });
+
+            document.addEventListener('pointerup', (event) => {
+                if (!swipe || event.pointerId !== swipe.id) return;
+                const { x, y, isExpanded } = swipe;
+                swipe = null;
+                if (!mobileSidebarQuery.matches) return;
+                const dx = event.clientX - x;
+                const dy = event.clientY - y;
+                if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+                if ((!isExpanded && dx > 0) || (isExpanded && dx < 0)) {
+                    suppressSwipeClick = true;
+                    setSidebarExpanded(!isExpanded);
+                    setTimeout(() => { suppressSwipeClick = false; }, 400);
+                }
+            }, { passive: true });
+
+            document.addEventListener('pointercancel', () => { swipe = null; }, { passive: true });
+            document.addEventListener('click', (event) => {
+                if (suppressSwipeClick && event.detail > 0) {
+                    suppressSwipeClick = false;
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }, true);
+
+            document.addEventListener('keydown', (event) => {
+                if (!mobileSidebarQuery.matches || !sidebar.classList.contains('expanded')) return;
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    setSidebarExpanded(false);
+                } else if (event.key === 'Tab') {
+                    const links = sidebar.querySelectorAll('button, a[href]');
+                    const first = links[0];
+                    const last = links[links.length - 1];
+                    if (event.shiftKey && document.activeElement === first) {
+                        event.preventDefault();
+                        last.focus();
+                    } else if (!event.shiftKey && document.activeElement === last) {
+                        event.preventDefault();
+                        first.focus();
+                    }
+                }
+            });
+
             resizer.addEventListener('mousedown', (e) => {
-                if (!sidebar.classList.contains('expanded')) return;
+                if (mobileSidebarQuery.matches || !sidebar.classList.contains('expanded')) return;
 
                 isResizing = true;
                 document.body.classList.add('no-select'); 
@@ -971,17 +1256,7 @@
                 mainContent.style.marginLeft = `${newWidth}px`;
             });
 
-            document.addEventListener('mouseup', () => {
-                if (isResizing) {
-                    isResizing = false;
-                    document.body.classList.remove('no-select');
-                    sidebar.classList.remove('no-transition');
-                    mainContent.classList.remove('no-transition');
-                    resizer.classList.remove('is-resizing');
-                    
-                    localStorage.setItem('TreeX4GD_sidebar_width', sidebar.style.width);
-                }
-            });
+            document.addEventListener('mouseup', finishSidebarResize);
 
             // 3. Generate TOC
             const toc = document.getElementById('toc');
@@ -1020,22 +1295,19 @@
                 a.title = header.textContent;
                 a.dataset.target = targetId; 
 
-                // --- MOBILE AUTO-CLOSE & SMOOTH JUMP FIX ---
+                // The mobile drawer overlays the page, so navigation needs no layout delay.
                 a.onclick = (e) => {
-                    if (window.innerWidth < 800) {
-                        if (sidebar.classList.contains('expanded')) {
-                            e.preventDefault(); // Stop native jump to handle it after layout updates
-                            toggleSidebar();
-                            
-                            // Wait for the 0.3s CSS width transition to finish before scrolling
-                            setTimeout(() => {
-                                const targetEl = document.getElementById(targetId);
-                                if (targetEl) {
-                                    targetEl.scrollIntoView({ behavior: 'smooth' });
-                                    history.pushState(null, null, '#' + targetId);
-                                }
-                            }, 320);
-                        }
+                    if (!mobileSidebarQuery.matches) return;
+                    e.preventDefault();
+                    setSidebarExpanded(false, false);
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        history.pushState(null, null, '#' + targetId);
+                        targetEl.tabIndex = -1;
+                        targetEl.focus({ preventScroll: true });
+                        targetEl.scrollIntoView({
+                            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+                        });
                     }
                 };
 
@@ -1067,6 +1339,7 @@
             let lastActiveId = null; // Track active section to prevent animation spam
 
             function updateScrollSpy() {
+                if (document.body.classList.contains('mobile-sidebar-open')) return;
                 let currentActive = null;
 
                 // Check if scrolled to the absolute bottom of the page
