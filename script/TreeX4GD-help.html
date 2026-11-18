@@ -791,7 +791,12 @@
 
             <h4 id="configuring-google-cloud-project">Configuring Google Cloud Project and Getting Credentials</h4>
             <ol>
-                <li><strong>Open:</strong> <a href="https://console.cloud.google.com/" target="_blank">https://console.cloud.google.com/</a></li>
+                <li><strong>Open Google Cloud Console and sign in:</strong>
+                    <ul>
+                        <li><strong>1.1.</strong> Open <a href="https://console.cloud.google.com/" target="_blank">https://console.cloud.google.com/</a>.</li>
+                        <li><strong>1.2.</strong> Sign in with your Google account. The account used to create the Cloud project does not need to be the same account as the Google Drive you want to access. Later, when TreeX4GD opens your browser to request Google Drive access, sign in with the Google account whose Drive you want to scan. If you choose an External audience and keep the app in Testing mode, add that Drive account's email address to <strong>Test Users</strong> in Google Cloud Console (Step 7) before authorizing TreeX4GD.</li>
+                    </ul>
+                </li>
                 <li><strong>Create a new project:</strong>
                     <ul>
                         <li><strong>2.1.</strong> Open the <strong>'Project Picker'</strong> (in the top bar or <span class="kbd">Ctrl</span> + <span class="kbd">O</span>).</li>
@@ -821,7 +826,7 @@
                             </ul>
                             <div class="note">
                                 💡 <strong>Tip on Audience Selection:</strong><br>
-                                * <strong>Internal (Workspace only):</strong> Highly recommended if available. It bypasses "Unverified App" warnings, allows coworkers to log in <em>without</em> you having to manually whitelist their email addresses, and has no cap on the number of users.<br>
+                                * <strong>Internal (Workspace only):</strong> Highly recommended if available. It restricts app access to Google Workspace users within your organisation. It bypasses "Unverified App" warnings, allows coworkers to log in <em>without</em> you having to manually whitelist their email addresses, and has no cap on the number of users.<br>
                                 * <strong>External (Standard <code>@gmail.com</code>):</strong> The app remains in "Testing mode," meaning you must manually add allowed emails to the <strong>Test Users</strong> list (Step 7) and there is a strict user limit (max 100).<br><br>
                                 <strong>Note:</strong> Either way, any user using your configuration will need a copy of your <code>credentials.json</code> file to launch the app (think of it as a shared <strong>App ID card</strong>, not an account access key).
                             </div>
